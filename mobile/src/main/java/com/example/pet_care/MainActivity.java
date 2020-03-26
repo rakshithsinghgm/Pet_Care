@@ -29,9 +29,10 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
     String flag_datapath = "/flag_datapath";
     Button active_button;
     Button inactive_button;
+    Button no_activity_button;
     TextView logger;
     String TAG = "Mobile MainActivity";
-    String flag;
+    String flag="3";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,14 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
                                             }
         );
 
+        no_activity_button = findViewById(R.id.no_activity);
+        no_activity_button.setOnClickListener( new View.OnClickListener () {
+                                                public void onClick(View v) {
+                                                    flag = "3";
+                                                    sendData(flag);
+                                                }
+                                            }
+        );
 
         logger = findViewById(R.id.logger);
         logger.setMovementMethod(new ScrollingMovementMethod());

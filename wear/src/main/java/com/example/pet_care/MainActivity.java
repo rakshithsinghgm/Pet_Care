@@ -113,27 +113,26 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        while(cur_class!=null||cur_class!=3) {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                x_val = event.values[0];
+                y_val = event.values[1];
+                z_val = event.values[2];
+                //double magnitude_result = Math.sqrt ( (x_val * x_val) + (y_val * y_val) + (z_val * z_val) );
+            } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+                g_x_val = event.values[0];
+                g_y_val = event.values[1];
+                g_z_val = event.values[2];
+            } else if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
+                l_x_val = event.values[0];
+                l_y_val = event.values[1];
+                l_z_val = event.values[2];
+            }
 
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            x_val = event.values[0];
-            y_val = event.values[1];
-            z_val = event.values[2];
-            //double magnitude_result = Math.sqrt ( (x_val * x_val) + (y_val * y_val) + (z_val * z_val) );
+            // Concatenating all the sensor readings to one string
+            data_message = x_val + "," + y_val + "," + z_val + "," + g_x_val + "," + g_y_val + "," + g_z_val + "," + l_x_val + "," + l_y_val + "," + l_z_val + "," + cur_class + "\n";
+            sendData(data_message);
         }
-        else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            g_x_val = event.values[0];
-            g_y_val = event.values[1];
-            g_z_val = event.values[2];
-        }
-        else if (event.sensor.getType() == Sensor.TYPE_LINEAR_ACCELERATION) {
-            l_x_val = event.values[0];
-            l_y_val = event.values[1];
-            l_z_val = event.values[2];
-        }
-
-        // Concatenating all the sensor readings to one string
-        data_message = x_val + "," + y_val + "," + z_val + ","+g_x_val+","+g_y_val+","+g_z_val+","+l_x_val+","+l_y_val+","+l_z_val+","+cur_class+"\n";
-        sendData(data_message);
     }
 
 
