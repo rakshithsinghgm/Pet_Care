@@ -1,0 +1,3 @@
+rootProject.name='Pet_Care'
+include ':mobile'
+include ':wear'
