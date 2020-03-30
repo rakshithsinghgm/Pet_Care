@@ -13,6 +13,7 @@ import android.support.wearable.activity.WearableActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -81,6 +82,7 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
 
     private final static String TAG = "Wear MainActivity";
     private TextView mTextView;
+    private ProgressBar progressBar;
     Button myButton;
 
     // These are kinda like ROS Topics, datapath is for sending data, flag_datapath is for sending the class label
@@ -99,18 +101,6 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
     private SensorDataAccumulator linaccelData = new SensorDataAccumulator();
     private SensorDataAccumulator gyroscopeData = new SensorDataAccumulator();
 
-    /*
-    private double x_val = 0.0;
-    private double y_val = 0.0;
-    private double z_val = 0.0;
-    private double g_x_val = 0.0;
-    private double g_y_val = 0.0;
-    private double g_z_val = 0.0;
-    private double l_x_val = 0.0;
-    private double l_y_val = 0.0;
-    private double l_z_val = 0.0;
-     */
-
     private String cur_class; // 1 for Active, 0 for inactive
     private String data_message;
     @Override
@@ -119,6 +109,9 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
         setContentView(R.layout.activity_main);
 
         mTextView = findViewById(R.id.text);
+        progressBar = findViewById(R.id.progressBar);
+
+        // todo (?):  https://stackoverflow.com/questions/39058837/android-wear-measuring-sensors-and-preventing-ambient-mode-sleep
 
         sm = (SensorManager) getSystemService ( Context.SENSOR_SERVICE );
         //accelerometer = sm.getDefaultSensor ( Sensor.TYPE_ACCELEROMETER );
@@ -130,6 +123,7 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
 
         // Enables Always-on
         setAmbientEnabled();
+
     }
 
     @Override
@@ -143,7 +137,7 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
     public void onPause() {
         super.onPause();
         Wearable.getDataClient(this).removeListener(this);
-        sm.unregisterListener(this);
+        // sm.unregisterListener(this);
 
     }
 
@@ -207,6 +201,13 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
             // reset data collectors
             linaccelData = new SensorDataAccumulator();
             gyroscopeData = new SensorDataAccumulator();
+
+            // update UI animation
+            this.progressBar.setProgress( currentSeconds % 2, true );
+            //final int N_CHARS_MAX = 10;
+            //String uiText = "..........";  // match n_chars_max
+            //mTextView.setText( uiText.subSequence(0, ( currentSeconds % N_CHARS_MAX)  ) );
+
         }
 
         // always collect the data
