@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <!--
     <Button
         android:id="@+id/active_btn"
         android:layout_width="wrap_content"
@@ -44,5 +45,306 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+    -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="1dp">
+
+        <!--
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".15"
+            android:orientation="horizontal"
+            android:padding="20dp"
+            >
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:layout_height="match_parent"
+                android:text="Collect &amp; Train"
+                android:onClick="btnCollect_click"
+
+                />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_weight="0.5"
+                android:layout_height="match_parent"
+                android:text="Deploy"
+                android:onClick="btnDeploy_click"
+                />
+
+
+        </LinearLayout>
+        -->
+
+        <!-- app title -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.15"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:gravity="center"
+            >
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="Pet Activity Detection"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="32dp"
+                />
+        </LinearLayout>
+
+        <!-- main content layout -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.65"
+            android:orientation="vertical"
+            >
+
+            <!-- collect and train layout -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/collectLayout"
+                android:orientation="vertical"
+                android:visibility="visible"
+                >
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.6"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    >
+
+                    <Switch
+                        android:id="@+id/switchDataCollection"
+                        android:layout_width="200dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.25"
+                        android:text="Data Collection"
+                        android:onClick="btnStartCollection_click"
+                        />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="0.25"
+                        android:text="To start collecting training data, enable data collection and select the current activity" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        >
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="0.5"
+                            android:layout_height="match_parent"
+                            android:text="Activity"
+                            android:gravity="center"
+                            android:textStyle="bold"
+                            />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="0.5"
+                            android:layout_height="match_parent"
+                            android:text="Instance Count"
+                            android:gravity="center"
+                            android:textStyle="bold"
+                            />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        >
+
+                        <RadioGroup
+                            android:id="@+id/rgCurrentActivity"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.5"
+                            >
+
+                            <RadioButton
+                                android:id="@+id/rbInactive"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Inactive"
+                                android:checked="true"
+                                />
+
+                            <RadioButton
+                                android:id="@+id/rbWalking"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Walking"
+                                />
+
+                            <RadioButton
+                                android:id="@+id/rbRunning"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Running"
+                                />
+
+                        </RadioGroup>
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="0.5"
+                            android:orientation="vertical"
+                            >
+
+                            <TextView
+                                android:id="@+id/tvInactiveCount"
+                                android:layout_width="match_parent"
+                                android:layout_weight="0.33"
+                                android:layout_height="0dp"
+                                android:text="0"
+                                android:gravity="center"
+                                />
+
+                            <TextView
+                                android:id="@+id/tvWalkingCount"
+                                android:layout_width="match_parent"
+                                android:layout_weight="0.33"
+                                android:layout_height="0dp"
+                                android:text="0"
+                                android:gravity="center"
+                                />
+
+
+                            <TextView
+                                android:id="@+id/tvRunningCount"
+                                android:layout_width="match_parent"
+                                android:layout_weight="0.33"
+                                android:layout_height="0dp"
+                                android:text="0"
+                                android:gravity="center"
+                                />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+                    <!--
+
+                        -->
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.4"
+                    android:orientation="vertical"
+                    android:padding="10dp"
+                    android:gravity="center"
+                    >
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight=".1"
+                        android:text="Actions"
+                        android:gravity="center"
+                        android:textStyle="bold"
+                        android:textSize="20dp"
+                        />
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight=".3"
+                        android:text="Train Models"
+                        android:onClick="btnDoTraining_click"
+                        />
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight=".3"
+                        android:text="Save Data"
+                        android:onClick="btnSaveData_click"
+                        />
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight=".3"
+                        android:text="Delete Data"
+                        android:onClick="btnDelete_click"
+                        />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- current activity -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:gravity="center"
+            >
+
+            <!-- section title -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight=".35"
+                android:text="Current Activity"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textSize="20dp"
+                />
+
+            <!-- inference output -->
+            <TextView
+                android:id="@+id/tvCurrentActivityText"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight=".35"
+                android:text=""
+                android:gravity="center"
+                />
+
+            <ProgressBar
+                android:id="@+id/currentActivityProgress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="0.3"
+                android:progress="0"
+                android:min="0"
+                android:max="100"
+                android:scaleY="3"
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
