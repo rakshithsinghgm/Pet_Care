@@ -1,5 +1,6 @@
 package com.example.pet_care;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,12 +36,57 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
     // handles sensor data accumulation/summation/etc
     private class SensorDataAccumulator {
 
-        private List<Double> data = new ArrayList<Double>();
+        public List<Double> data = new ArrayList<Double>();
 
         public void append( float[] vals ) {
             double magnitude =
                     Math.sqrt(vals[0]*vals[0]+vals[1]*vals[1]+vals[2]*vals[2]);
             this.data.add(magnitude);
+        }
+
+        public float[] getStats() {
+
+            double[] magArray = Utils.toDoubles(this.data);
+
+            ArrayList<Float> floats = new ArrayList<>();
+
+            // min
+            floats.add( (float)Utils.minimum(magArray) );
+
+            // max
+            floats.add( (float)Utils.maximum(magArray) );
+
+            // mean
+            floats.add( (float)Utils.mean(magArray) );;
+
+            // variance
+            floats.add( (float)Utils.variance(magArray) );
+
+            // std dev
+            floats.add( (float)Utils.standardDeviation(magArray) );
+
+            // zcr
+            floats.add( (float)Utils.zeroCrossingRate(magArray) );
+
+            // mcr
+            floats.add( (float)Utils.meanCrossingsRate(magArray) );
+
+            // energy
+            floats.add( (float)Utils.energy(magArray) );
+
+            // skew
+            floats.add( (float)Utils.skew(magArray) );
+
+            // kurtosis
+            floats.add( (float)Utils.kurt(magArray) );
+
+            // centroid
+            floats.add( (float)Utils.centroid(magArray) );
+
+            // rms
+            floats.add( (float)Utils.rms(magArray) );
+
+            return Utils.toFloats2(floats);
         }
 
         // writes data statistics in CSV format to the provided StringBuffer
@@ -76,6 +122,30 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
             sb.append( Utils.zeroCrossingRate(magArray) );
             sb.append(',');
 
+            // mcr
+            sb.append( Utils.meanCrossingsRate(magArray) );
+            sb.append(',');
+
+            // energy
+            sb.append( Utils.energy(magArray) );
+            sb.append(',');
+
+            // skew
+            sb.append( Utils.skew(magArray) );
+            sb.append(',');
+
+            // kurtosis
+            sb.append( Utils.kurt(magArray) );
+            sb.append(',');
+
+            // centroid
+            sb.append( Utils.centroid(magArray) );
+            sb.append(',');
+
+            // rms
+            sb.append( Utils.rms(magArray) );
+            sb.append(',');
+
             return true;
         }
     }   // SensorDataAccumulator
@@ -103,6 +173,10 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
 
     private String cur_class; // 1 for Active, 0 for inactive
     private String data_message;
+
+    private TfModel _tf;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,6 +194,8 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
         // sm.registerListener ( MainActivity.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         sm.registerListener ( MainActivity.this, gyrocope, SensorManager.SENSOR_DELAY_NORMAL);
         sm.registerListener ( MainActivity.this, linear_accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+
+        this._tf = new TfModel(this.getApplicationContext());
 
         // Enables Always-on
         setAmbientEnabled();
@@ -197,6 +273,15 @@ public class MainActivity extends WearableActivity implements DataClient.OnDataC
                 sendData(dataMsg.toString());
             else
                 Log.e(TAG, "No data; message not sent");
+
+            // test:  tflite on wear
+            try {
+                int best = this._tf.test( linaccelData.getStats(), gyroscopeData.getStats() );
+            } catch ( Exception ex ) {
+                Log.e(TAG, ex.getMessage());
+            }
+
+            // end test
 
             // reset data collectors
             linaccelData = new SensorDataAccumulator();

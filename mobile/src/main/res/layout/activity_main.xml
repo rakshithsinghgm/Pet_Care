@@ -53,61 +53,11 @@
         android:orientation="vertical"
         tools:layout_editor_absoluteX="1dp">
 
-        <!--
+        <!-- data collection and actions -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight=".15"
-            android:orientation="horizontal"
-            android:padding="20dp"
-            >
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="0.5"
-                android:layout_height="match_parent"
-                android:text="Collect &amp; Train"
-                android:onClick="btnCollect_click"
-
-                />
-
-            <Button
-                android:layout_width="0dp"
-                android:layout_weight="0.5"
-                android:layout_height="match_parent"
-                android:text="Deploy"
-                android:onClick="btnDeploy_click"
-                />
-
-
-        </LinearLayout>
-        -->
-
-        <!-- app title -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.15"
-            android:orientation="vertical"
-            android:padding="20dp"
-            android:gravity="center"
-            >
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:text="Pet Activity Detection"
-                android:gravity="center"
-                android:textStyle="bold"
-                android:textSize="32dp"
-                />
-        </LinearLayout>
-
-        <!-- main content layout -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.65"
+            android:layout_weight="0.8"
             android:orientation="vertical"
             >
 
@@ -120,6 +70,7 @@
                 android:visibility="visible"
                 >
 
+                <!-- data collection slider and radio group -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
@@ -132,7 +83,7 @@
                         android:id="@+id/switchDataCollection"
                         android:layout_width="200dp"
                         android:layout_height="0dp"
-                        android:layout_weight="0.25"
+                        android:layout_weight="0.2"
                         android:text="Data Collection"
                         android:onClick="btnStartCollection_click"
                         />
@@ -140,7 +91,7 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="0.25"
+                        android:layout_weight="0.2"
                         android:text="To start collecting training data, enable data collection and select the current activity" />
 
                     <LinearLayout
@@ -183,25 +134,25 @@
                             >
 
                             <RadioButton
-                                android:id="@+id/rbInactive"
+                                android:id="@+id/rbSleeping"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Inactive"
+                                android:text="Sleeping"
                                 android:checked="true"
                                 />
 
                             <RadioButton
-                                android:id="@+id/rbWalking"
+                                android:id="@+id/rbInactive"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Walking"
+                                android:text="Inactive"
                                 />
 
                             <RadioButton
-                                android:id="@+id/rbRunning"
+                                android:id="@+id/rbActive"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Running"
+                                android:text="Active"
                                 />
 
                         </RadioGroup>
@@ -214,28 +165,27 @@
                             >
 
                             <TextView
+                                android:id="@+id/tvSleepingCount"
+                                android:layout_width="match_parent"
+                                android:layout_weight="0.5"
+                                android:layout_height="0dp"
+                                android:text="0"
+                                android:gravity="center"
+                                />
+
+                            <TextView
                                 android:id="@+id/tvInactiveCount"
                                 android:layout_width="match_parent"
-                                android:layout_weight="0.33"
+                                android:layout_weight="0.5"
                                 android:layout_height="0dp"
                                 android:text="0"
                                 android:gravity="center"
                                 />
 
                             <TextView
-                                android:id="@+id/tvWalkingCount"
+                                android:id="@+id/tvActiveCount"
                                 android:layout_width="match_parent"
-                                android:layout_weight="0.33"
-                                android:layout_height="0dp"
-                                android:text="0"
-                                android:gravity="center"
-                                />
-
-
-                            <TextView
-                                android:id="@+id/tvRunningCount"
-                                android:layout_width="match_parent"
-                                android:layout_weight="0.33"
+                                android:layout_weight="0.5"
                                 android:layout_height="0dp"
                                 android:text="0"
                                 android:gravity="center"
@@ -244,13 +194,9 @@
                         </LinearLayout>
 
                     </LinearLayout>
-
-
-                    <!--
-
-                        -->
                 </LinearLayout>
 
+                <!-- data collection action buttons -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
@@ -273,15 +219,7 @@
                     <Button
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight=".3"
-                        android:text="Train Models"
-                        android:onClick="btnDoTraining_click"
-                        />
-
-                    <Button
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight=".3"
+                        android:layout_weight=".5"
                         android:text="Save Data"
                         android:onClick="btnSaveData_click"
                         />
@@ -289,7 +227,7 @@
                     <Button
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight=".3"
+                        android:layout_weight=".5"
                         android:text="Delete Data"
                         android:onClick="btnDelete_click"
                         />
@@ -344,6 +282,8 @@
                 />
 
         </LinearLayout>
+
+
     </LinearLayout>
 
 

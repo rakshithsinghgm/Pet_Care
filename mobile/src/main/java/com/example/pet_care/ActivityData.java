@@ -4,19 +4,21 @@ import android.content.Context;
 import android.util.Log;
 
 import java.io.IOException;
+import java.nio.MappedByteBuffer;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import weka.classifiers.Classifier;
-import weka.core.Attribute;
-import weka.core.Instance;
-import weka.core.Instances;
+import org.tensorflow.lite.DataType;
+import org.tensorflow.lite.Interpreter;
+import org.tensorflow.lite.support.common.FileUtil;
+import org.tensorflow.lite.support.tensorbuffer.TensorBuffer;
+import org.tensorflow.lite.support.model.Model;
 
-import static com.example.pet_care.WekaUtils.evalClassifier;
-import static com.example.pet_care.WekaUtils.getNBClassifier;
-import static com.example.pet_care.WekaUtils.getRFClassifier;
+import javax.xml.datatype.DatatypeConfigurationException;
 
 public class ActivityData {
 
@@ -25,58 +27,66 @@ public class ActivityData {
     // stringbuffer containing csv of data
     StringBuffer _sb = new StringBuffer();
 
-    Classifier _dt = null;
-    Classifier _rf = null;
-    Classifier _nb = null;
-
-    Instances _wekaInstances = null;
+    Interpreter _tfInt = null;
 
     public static String data_fname = "data.csv";
-    public static String clsRF_fname = "rf.model";
-    public static String clsDT_fname = "dt.model";
-    public static String clsNB_fname = "nb.model";
-
-    public static final String ACTIVITY_CLASS_UNKNOWN_STRING = "Unknown";
-    public static final String ACTIVITY_CLASS_INACTIVE_STRING = "Inactive";
-    public static final String ACTIVITY_CLASS_WALKING_STRING = "Walking";
-    public static final String ACTIVITY_CLASS_RUNNING_STRING = "Running";
+    public static String clsTF_fname = "cat_model.tflite";
 
     public Map<String, Integer> InstancesCount = new HashMap<>();
+
+    // public static final String ACTIVITY_CLASS_UNKNOWN_STRING = "Unknown";
+
+    // int values must match tensorflow transformed values
+    public static final String ACTIVITY_CLASS_SLEEPING_STRING = "Sleeping";
+    public static final String ACTIVITY_CLASS_INACTIVE_STRING = "Inactive";
+    public static final String ACTIVITY_CLASS_ACTIVE_STRING = "Active";
+
+    public static final Map<Integer, String> ActivityClasses = new HashMap<Integer, String>(){{
+        put(0, ACTIVITY_CLASS_SLEEPING_STRING);
+        put(1, ACTIVITY_CLASS_INACTIVE_STRING);
+        put(2, ACTIVITY_CLASS_ACTIVE_STRING);
+    }};
 
 
     public ActivityData( Context cx ) throws Exception {
         this._cx = cx;
 
         // init instances count
-        this.InstancesCount.put( ACTIVITY_CLASS_UNKNOWN_STRING, 0 );
-        this.InstancesCount.put( ACTIVITY_CLASS_INACTIVE_STRING, 0 );
-        this.InstancesCount.put( ACTIVITY_CLASS_WALKING_STRING, 0 );
-        this.InstancesCount.put( ACTIVITY_CLASS_RUNNING_STRING, 0 );
+        for ( String s : ActivityClasses.values() )
+            this.InstancesCount.put( s, 0);
 
         // attempt to restore state
         try {
             this._sb = Utils.readFile( this._cx, data_fname );
-            this._wekaInstances = WekaUtils.getWekaInstances( this._sb.toString() );
+
+            // java split on newlines
+            String[] lines = this._sb.toString().split("\\R+");
 
             // count instances per class
+            // classname is last element on line
             boolean hasUnknowns = false;
-            for (Instance i : this._wekaInstances ) {
+            for ( String line : lines ) {
+                String[] elems = line.split(",");
 
-                String className =i.stringValue(i.classIndex());
-                if ( !this.incrementClassnameCount(className))
-                    hasUnknowns = true;
+                if ( elems.length > 1) {
+                    String className = elems[elems.length-1].trim();
+                    if ( !this.incrementClassnameCount(className))
+                        hasUnknowns = true;
+                }
             }
 
             if ( hasUnknowns )
                 Utils.showMsg(this._cx, "Saved activity data has unrecognized classes");
 
-            this._dt = WekaUtils.loadClassifier(this._cx, clsDT_fname);
-            this._rf = WekaUtils.loadClassifier(this._cx, clsRF_fname );
-            this._nb = WekaUtils.loadClassifier(this._cx, clsNB_fname );
-
-            Log.d("AD", "ActivityData restored successfully");
+            // load tf-lite model
+            MappedByteBuffer tfliteModel = FileUtil.loadMappedFile(this._cx, clsTF_fname );
+            this._tfInt = new Interpreter(tfliteModel);
         }
-        catch ( IOException ex ) {}  // ignore file not found
+        catch ( IOException ex ) {
+
+            Utils.showMsg(this._cx, "Error loading activity data and/or model");
+
+        }
         catch ( Exception ex ) {
             throw ex;
         }
@@ -89,17 +99,14 @@ public class ActivityData {
         boolean result = true;
         Object classCount = this.InstancesCount.get( className );
 
-        // remap unknown classes to unknown category
-        if ( classCount == null ) {
-            result = false;
-            className = ACTIVITY_CLASS_UNKNOWN_STRING;
-        }
+        if ( classCount == null )
+            return false;
 
         this.InstancesCount.put( className,
                 (int)this.InstancesCount.get( className ) + 1
         );
 
-        return result;
+        return true;
     }
 
     // append parsed sensor data to the collection of data
@@ -118,61 +125,40 @@ public class ActivityData {
 
     }
 
-    // classify the data, return a dict or something with algorithm and classification and confidence
+    // classify the data, return a string with classification and confidence
     public String classify( Double[] data ) throws Exception {
 
-        if ( this._dt != null ) {
-            Map.Entry<String, Double> dt = WekaUtils.classification(this._dt, WekaUtils.getClassLabels( this._wekaInstances ), data);
-            return dt.getKey() + " / " + String.valueOf(dt.getValue());
+        List<Float> floatList = Utils.toFloatList(data);
+
+        float[][] floats2d = new float[1][floatList.size()];
+        for ( int i = 0; i < floatList.size(); i++ )
+            floats2d[0][i] = (float)floatList.get(i);
+
+        float[][] result = new float[1][ActivityClasses.size()];
+        this._tfInt.run( floats2d, result );
+
+        // convert highest prob to string
+        int bestIdx = 0;
+        for ( int i = 0; i < result[0].length; i++ ) {
+            if ( result[0][i] > result[0][bestIdx] )
+                bestIdx = i;
         }
 
-        return "";
-
+        // format string for display w/ pct
+        String fmtPct =  new DecimalFormat("#.####").format(result[0][bestIdx]);
+        return ActivityClasses.get( bestIdx ) + " / " + fmtPct;
     }
 
-    // train the models and return accuracy stats in a string (hacky)
-    public String train() throws Exception {
-
-        StringBuffer result = new StringBuffer();
-
-        // recreate weka instances from current data
-        this._wekaInstances = WekaUtils.getWekaInstances( this._sb.toString() );
-
-        // j48
-        result.append("J48: ");
-        this._dt = WekaUtils.getJ48Classifier(this._wekaInstances);
-        result.append( WekaUtils.evalClassifier( this._dt, this._wekaInstances) );
-
-        // random forest
-        result.append("\nRF: ");
-        this._rf = WekaUtils.getRFClassifier(this._wekaInstances);
-        result.append( WekaUtils.evalClassifier( this._rf, this._wekaInstances) );
-
-        // naive bayes
-        result.append("\nNB: ");
-        this._nb = WekaUtils.getNBClassifier(this._wekaInstances);
-        result.append( WekaUtils.evalClassifier( this._nb, this._wekaInstances) );
-
-        return result.toString();
-    }
-
-    // save/overwrite the models and data to disk
+    // save/overwrite the data to disk
     public void save() throws Exception {
 
         Utils.deleteFile( this._cx, data_fname );
         Utils.appendToFile( this._cx, data_fname, this._sb.toString());
-
-        WekaUtils.writeFile( this._cx, clsDT_fname, this._dt );
-        WekaUtils.writeFile( this._cx, clsRF_fname, this._rf );
-        WekaUtils.writeFile( this._cx, clsNB_fname, this._nb );
     }
 
     // delete all data files
     public void delete() {
         Utils.deleteFile( this._cx, ActivityData.data_fname );
-        Utils.deleteFile( this._cx, ActivityData.clsDT_fname );
-        Utils.deleteFile( this._cx, ActivityData.clsNB_fname );
-        Utils.deleteFile( this._cx, ActivityData.clsRF_fname );
     }
 
 
@@ -181,8 +167,8 @@ public class ActivityData {
 
         // expected csv format:
         //  watch time (seconds)
-        //  LinearAcceleration fields:  min, max, mean, variance, std.dev, zcr
-        //  Gyroscope fields:           min, max, mean, variance, std.dev, zcr
+        //  LinearAcceleration fields:  min, max, mean, variance, std.dev, zcr, mcr, energy, skew, kurtosis, centroid, rms
+        //  Gyroscope fields:           min, max, mean, variance, std.dev, zcr, mcr, energy, skew, kurtosis, centroid, rms
 
         StringTokenizer tok = new StringTokenizer(s,",", false);
         ArrayList<Double> result = new ArrayList<>();
@@ -203,13 +189,13 @@ public class ActivityData {
 
         //  calculate largest magnitude in min,max diff between linearaccel and gyroscope, use that
         //  linaccel indices (min,max):     0,1
-        //  gyroscope indices (min,max):    6,7
+        //  gyroscope indices (min,max):    12,13
         double linmag = Math.sqrt(
                 Math.pow( data[0], 2. ) + Math.pow( data[1], 2. )
         );
 
         double gymag = Math.sqrt(
-                Math.pow( data[6], 2. ) + Math.pow( data[7], 2. )
+                Math.pow( data[12], 2. ) + Math.pow( data[13], 2. )
         );
 
         return Math.max( linmag, gymag );

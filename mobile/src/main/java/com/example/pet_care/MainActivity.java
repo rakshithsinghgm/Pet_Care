@@ -43,7 +43,6 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
     String TAG = "Mobile MainActivity";
     String flag;
 
-
     String current_label = null;
 
     boolean is_collecting = false;
@@ -53,13 +52,13 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
     // UI widgets
     Switch switchDataCollection;
     RadioGroup rgCurrentActivity;
-    RadioButton rbCurrentActivityNotMoving;
-    RadioButton rbCurrentActivityWalking;
-    RadioButton rbCurrentActivityRunning;
+    RadioButton rbCurrentActivityInactive;
+    RadioButton rbCurrentActivityActive;
+    RadioButton rbCurrentActivitySleeping;
     TextView tvCurrentActivityText;
     TextView tvInactiveCount;
-    TextView tvWalkingCount;
-    TextView tvRunningCount;
+    TextView tvActiveCount;
+    TextView tvSleepingCount;
     ProgressBar currentActivityProgress;
 
     @Override
@@ -70,14 +69,14 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
         // get ui widgets
         switchDataCollection = findViewById(R.id.switchDataCollection);
         rgCurrentActivity = findViewById(R.id.rgCurrentActivity);
-        rbCurrentActivityNotMoving = findViewById(R.id.rbInactive);
-        rbCurrentActivityWalking= findViewById(R.id.rbWalking);
-        rbCurrentActivityRunning= findViewById(R.id.rbRunning);
+        rbCurrentActivityInactive = findViewById(R.id.rbInactive);
+        rbCurrentActivityActive = findViewById(R.id.rbActive);
+        rbCurrentActivitySleeping = findViewById(R.id.rbSleeping);
         tvCurrentActivityText= findViewById(R.id.tvCurrentActivityText);
         currentActivityProgress= findViewById(R.id.currentActivityProgress);
         tvInactiveCount = findViewById(R.id.tvInactiveCount);
-        tvWalkingCount = findViewById(R.id.tvWalkingCount);
-        tvRunningCount = findViewById(R.id.tvRunningCount);
+        tvActiveCount = findViewById(R.id.tvActiveCount);
+        tvSleepingCount = findViewById(R.id.tvSleepingCount);
 
         try {
             this.data = new ActivityData(this.getApplicationContext());
@@ -161,12 +160,12 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
                 String.valueOf( this.data.InstancesCount.getOrDefault( ActivityData.ACTIVITY_CLASS_INACTIVE_STRING, 0 ) )
         );
 
-        tvWalkingCount.setText(
-                String.valueOf( this.data.InstancesCount.getOrDefault( ActivityData.ACTIVITY_CLASS_WALKING_STRING, 0 ) )
+        tvActiveCount.setText(
+                String.valueOf( this.data.InstancesCount.getOrDefault( ActivityData.ACTIVITY_CLASS_ACTIVE_STRING, 0 ) )
         );
 
-        tvRunningCount.setText(
-                String.valueOf( this.data.InstancesCount.getOrDefault( ActivityData.ACTIVITY_CLASS_RUNNING_STRING, 0 ) )
+        tvSleepingCount.setText(
+                String.valueOf( this.data.InstancesCount.getOrDefault( ActivityData.ACTIVITY_CLASS_SLEEPING_STRING, 0 ) )
         );
 
     }
@@ -182,23 +181,25 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
 
         if ( this.is_collecting ) {
             // determine current label and value for data collection
-            current_label = ActivityData.ACTIVITY_CLASS_UNKNOWN_STRING;
+            current_label = null;
 
-            if ( rbCurrentActivityNotMoving.isChecked() ) {
+            if ( rbCurrentActivityInactive.isChecked() ) {
                 current_label = ActivityData.ACTIVITY_CLASS_INACTIVE_STRING;
-            } else if ( rbCurrentActivityRunning.isChecked() ) {
-                current_label = ActivityData.ACTIVITY_CLASS_RUNNING_STRING;
-            } else if ( rbCurrentActivityWalking.isChecked() ) {
-                current_label = ActivityData.ACTIVITY_CLASS_WALKING_STRING;
+            } else if ( rbCurrentActivityActive.isChecked() ) {
+                current_label = ActivityData.ACTIVITY_CLASS_ACTIVE_STRING;
+            } else if ( rbCurrentActivitySleeping.isChecked() ) {
+                current_label = ActivityData.ACTIVITY_CLASS_SLEEPING_STRING;
             }
 
-            // Log.v(TAG, "Appending data[], class=" + current_label);
+            if ( current_label != null ) {
+                // Log.v(TAG, "Appending data[], class=" + current_label);
 
-            // add to data collection
-            this.data.append(sensorData, current_label);
+                // add to data collection
+                this.data.append(sensorData, current_label);
 
-            // update collection labels with # of samples
-            this.updateInstanceCounts();
+                // update collection labels with # of samples
+                this.updateInstanceCounts();
+            }
         }
 
         // always perform inference, if we can
@@ -253,24 +254,10 @@ public class MainActivity extends AppCompatActivity implements DataClient.OnData
 
         try {
             this.data.save();
-            showMsg( this.getApplicationContext(), "Data and models saved");
+            showMsg( this.getApplicationContext(), "Data saved");
         }
         catch (Exception ex ) {
             Utils.showMsg(this.getApplicationContext(), ex );
         }
-    }
-
-    public void btnDoTraining_click(View view) {
-
-        try {
-
-            String msg = this.data.train();
-
-            showMsg( this.getApplicationContext(), msg );
-
-        } catch ( Exception ex ) {
-            showMsg( this.getApplicationContext(), ex );
-        }
-
     }
 }
