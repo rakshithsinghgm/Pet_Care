@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -80,5 +81,17 @@ public class Utils {
     public static void showMsg( Context cx, Exception ex ) {
         ex.printStackTrace();
         showMsg( cx, ex.getMessage());
+    }
+
+
+    // parse the sensor data string (CSV)
+    public static List<Float> toFloatList(Double[] doubles ) {
+
+        ArrayList<Float> result = new ArrayList<>();
+
+        for ( Double d : doubles )
+            result.add( (float)(double)d );
+
+        return result;
     }
 }
