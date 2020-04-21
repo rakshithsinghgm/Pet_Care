@@ -18,7 +18,7 @@ This application will:
 Collection and labeling of the training dataset will be done manually while observing the cat's activity.
 We are also interested in identifying which features are most useful in activity prediction.
 
-# COMPLETED TASKS:
+## COMPLETED TASKS:
 - training:
     -- app on the sensor to collect the data and send it to the smartphone
     -- app on the smartphone to receive the data and save to csv
@@ -26,7 +26,7 @@ We are also interested in identifying which features are most useful in activity
 - real-time inference using tf-lite on smartphone and on the watch
 - 30 minutes of data collection (10m sleeping, 10m inactive/notmoving, 10m active/moving)
 
-# INCOMPLETED TASKS:
+## INCOMPLETED TASKS:
 - user app on the phone to collect data from the watch and display it:
     -- app performs real-time inference, cumulative summary of pet activity, bkgd notifications, energy efficient
 - watch app:
