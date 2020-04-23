@@ -24,6 +24,8 @@ import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
 import com.google.android.gms.wearable.DataMapItem;
+import com.google.android.gms.wearable.MessageClient;
+import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
@@ -32,7 +34,7 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity  implements MessageClient.OnMessageReceivedListener {
 
     String datapath = "/data_path";
     String flag_datapath = "/flag_datapath";
@@ -50,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
     private Cursor cur;
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Date date = sdf.format(new Date ());
+    //Date date = sdf.format(new Date ());//tc:  does not compile
+    Date date = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,16 +64,10 @@ public class MainActivity extends AppCompatActivity {
         statsdb = dbHelper.getWritableDatabase();
 
         montior_switch = findViewById(R.id.switch1);
-        if ( montior_switch.isChecked() ) monitor_flag = true;
-        else monitor_flag = false;
 
-        if (monitor_flag == true){
-            scheduleJob();
-        }
-        else (monitor_flag == false)
-        {
-            cancelJob();
-        }
+        // todo:  get current job status, and set monitor_switch value
+
+
 
         stats = findViewById(R.id.stats);
 
@@ -222,6 +219,13 @@ public class MainActivity extends AppCompatActivity {
     } */
 
 
+    public void monitorswitch_click(View view) {
+        if ( montior_switch.isChecked() )
+            scheduleJob();
+        else
+            cancelJob();
+    }
+
     private void scheduleJob(){
         ComponentName comp_name = new ComponentName(this,PetCareJobService.class);
         JobInfo info = new JobInfo.Builder(777,comp_name)
@@ -237,5 +241,11 @@ public class MainActivity extends AppCompatActivity {
 
         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
         scheduler.cancel(777);
+    }
+
+    @Override
+    public void onMessageReceived(@NonNull MessageEvent messageEvent) {
+        Log.d(TAG, "MainActivity received message on path: " +  messageEvent.getPath());
+
     }
 }
