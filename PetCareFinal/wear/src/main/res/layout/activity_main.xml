@@ -24,6 +24,7 @@
             app:layout_constraintTop_toTopOf="parent"
             />
 
+        <!--
         <ProgressBar
             android:id="@+id/progressBar"
             style="?android:attr/progressBarStyle"
@@ -36,7 +37,7 @@
             android:max="100"
             android:min="0"
             />
-
+        -->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.wear.widget.BoxInsetLayout>

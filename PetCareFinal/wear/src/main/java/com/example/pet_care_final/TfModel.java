@@ -13,6 +13,8 @@ import org.tensorflow.lite.support.common.FileUtil;
 
 public class TfModel {
 
+    static final String TAG = "pet_care_final";
+
     Interpreter _tfInt = null;
     Context _cx;
 
@@ -29,40 +31,23 @@ public class TfModel {
 
     }
 
-    public int test( float[] sensor1, float[] sensor2 ) {
-
-        ArrayList<Float> combined = new ArrayList<>();
-
-        for ( float f : sensor1 )
-            combined.add(f);
-
-        for (float f : sensor2  )
-            combined.add(f);
-
-        //combined.remove(17);
-        //combined.remove(5);
-
-        return  this.test( combined.toArray(new Float[0]) );
-    }
-
-    public int test( Float[] data ) {
+    public int predict( List<Float> data ) {
 
         // convert to 2d array
-        float[][] floats2d = new float[1][data.length];
-        for ( int i = 0; i < data.length; i++ )
-            floats2d[0][i] = (float)data[i];
+        float[][] floats2d = new float[1][data.size()];
+        for ( int i = 0; i < data.size(); i++ )
+            floats2d[0][i] = (float)data.get(i);
 
         float[][] result = new float[1][3];
         this._tfInt.run( floats2d, result );
 
-        // convert highest prob to string
         int bestIdx = 0;
-        for ( int i = 0; i < result[0].length; i++ ) {
+        for ( int i = 1; i < result[0].length; i++ ) {
             if ( result[0][i] > result[0][bestIdx] )
                 bestIdx = i;
         }
 
-        Log.w("WEAR", String.valueOf(bestIdx));
+        Log.d (TAG, String.valueOf(bestIdx));
         return bestIdx;
     }
 }

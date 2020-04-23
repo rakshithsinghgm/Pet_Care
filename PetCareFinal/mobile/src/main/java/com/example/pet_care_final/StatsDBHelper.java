@@ -18,7 +18,7 @@ public class StatsDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        final String SQL_STATS_DB_TABLE = "CREATE TABLE" +
+        final String SQL_STATS_DB_TABLE = "CREATE TABLE " +
                 StatsEntry.Table_Name + " (" +
                 StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 StatsEntry.Time_Stamp + " STRING DEFAULT CURRENT_TIMESTAMP, " +
