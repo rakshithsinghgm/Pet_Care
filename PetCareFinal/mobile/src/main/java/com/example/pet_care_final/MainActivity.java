@@ -50,7 +50,8 @@ public class MainActivity extends AppCompatActivity {
     private Cursor cur;
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    Date date = sdf.format(new Date ());
+    //Date date = sdf.format(new Date ());//tc:  does not compile
+    Date date = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         if (monitor_flag == true){
             scheduleJob();
         }
-        else (monitor_flag == false)
+        else //(monitor_flag == false) tc:  does not compile
         {
             cancelJob();
         }

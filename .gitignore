@@ -1,0 +1,6 @@
+.idea/*
+mobile/build/*
+wear/build/*
+*.iml
+.gradle
+local.properties
