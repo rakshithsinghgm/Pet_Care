@@ -1,48 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/relativeLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-
-    <Switch
-        android:id="@+id/switch1"
-        android:layout_width="178dp"
-        android:layout_height="74dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="304dp"
-        android:layout_marginBottom="433dp"
-        android:fontFamily="@font/adamina"
-        android:text="Start Monitoring"
-        android:textSize="17sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.423"
-        android:onClick="monitorswitch_click"
-        />
-
-    <TextView
-        android:id="@+id/stats"
-        android:layout_width="412dp"
-        android:layout_height="253dp"
-        android:layout_marginStart="13dp"
-        android:layout_marginTop="492dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="40dp"
-        android:fontFamily="@font/adamina"
-        android:text="TextView"
-        android:textColor="#FFFFFF"
-        android:textSize="17sp"
-        android:typeface="sans"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-
-    />
 
 
     <TextView
@@ -50,30 +13,21 @@
         android:layout_width="219dp"
         android:layout_height="32dp"
         android:layout_marginStart="96dp"
-        android:layout_marginTop="411dp"
-        android:layout_marginBottom="368dp"
+        android:layout_marginTop="395dp"
         android:fontFamily="@font/adamina"
         android:text="Today's Stats"
         android:textAlignment="center"
         android:textColor="#FFFFFF"
         android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.35" />
+        android:textStyle="bold" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/photo"
         android:layout_width="277dp"
         android:layout_height="147dp"
-        android:layout_marginStart="58dp"
-        android:layout_marginTop="72dp"
-        android:layout_marginBottom="512dp"
-        android:src="@drawable/garvin"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginStart="64dp"
+        android:layout_marginTop="56dp"
+        android:src="@drawable/gavin_face" />
 
     <TextView
         android:id="@+id/pet_name"
@@ -88,9 +42,30 @@
         android:textAllCaps="false"
         android:textColor="#FFFFFF"
         android:textSize="25sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:textStyle="bold" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/stats_txt"
+        android:layout_width="348dp"
+        android:layout_height="207dp"
+        android:layout_marginStart="31dp"
+        android:layout_marginTop="486dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="39dp"
+        android:text="TextView"
+        android:textAlignment="center"
+        android:textSize="20sp" />
+
+    <Switch
+        android:id="@+id/switch1"
+        android:layout_width="222dp"
+        android:layout_height="62dp"
+        android:layout_marginTop="288dp"
+        android:layout_marginEnd="161dp"
+        android:layout_marginBottom="381dp"
+        android:fontFamily="@font/adamina"
+        android:onClick="monitorswitch_click"
+        android:text="Start Monitoring"
+        android:textSize="17sp" />
+
+</RelativeLayout>
