@@ -4,7 +4,8 @@ Sensor and Mobile Computing final project.
 Project title:  Cat activity detection
 Authors:  Rakshith Singh, Tom Clunie
 
-![Image description](https://github.com/rakshithsinghgm/Pet_Care/blob/master/current_gui.png)
+# Current User App Interface 
+<a href="url"><img src="https://github.com/rakshithsinghgm/Pet_Care/blob/master/current_gui.png" title="Current User App Interface" align="center" height=700 max-width="100%"></a>
 
 We would like to perform activity detection for a cat and report statistics related to the activity (distance traveled, calories burned, etc).
 We will collect the data using an Android smartwatch (Fossil DW9F2 running Android Wear OS) using the accelerometer, gyroscope, and other sensors as appropriate/available.
