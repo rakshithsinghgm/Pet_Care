@@ -29,9 +29,13 @@ We are also interested in identifying which features are most useful in activity
 - real-time inference using tf-lite on smartphone and on the watch
 - 30 minutes of data collection (10m sleeping, 10m inactive/notmoving, 10m active/moving)
 
+## Active Testing/ Refactoring 
+- user app on the phone to collect data from the watch and display it.
+- job scheduler and SQLITE DB on User app
+- dispaly cumulative summary of pet activity
+
 ## INCOMPLETED TASKS:
-- user app on the phone to collect data from the watch and display it:
-    -- app performs real-time inference, cumulative summary of pet activity, bkgd notifications, energy efficient
+- user app:
+    -- real time inference of pet activity 
 - watch app:
     -- collect data in energy-efficient manner, perform inference, send data to user smartphone app on demand
-- (?) feature analysis
