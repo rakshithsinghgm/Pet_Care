@@ -17,6 +17,16 @@ import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
+import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
+import com.github.mikephil.charting.interfaces.datasets.IBarDataSet;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -33,8 +43,10 @@ import com.google.android.gms.wearable.Wearable;
 import java.sql.Date;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity  implements MessageClient.OnMessageReceivedListener {
+public class MainActivity extends AppCompatActivity  {
 
     String datapath = "/data_path";
     String flag_datapath = "/flag_datapath";
@@ -54,6 +66,7 @@ public class MainActivity extends AppCompatActivity  implements MessageClient.On
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     //Date date = sdf.format(new Date ());//tc:  does not compile
     Date date = null;
+    BarChart chart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,28 +80,8 @@ public class MainActivity extends AppCompatActivity  implements MessageClient.On
 
         // todo:  get current job status, and set monitor_switch value
 
-
-
-        stats = findViewById(R.id.stats);
-
-        DispStats();
-
-        // DispStats();
-
+        //DispStats();
     }
-
-    // this function will monitor pet activity by communicating with the watch app
-    public void Monitor(){
-        /*
-        *
-        *   Should Set these following actions in the background
-        *   Should send a flag to the watch and receive predictions from the watch at fixed intervals of time
-        *   Should Log the predictions with their timestamp in a database
-        *
-        * */
-
-    }
-
 
     /*
 
@@ -114,84 +107,63 @@ public class MainActivity extends AppCompatActivity  implements MessageClient.On
 
     public void DispStats() {
 
-        String SQL_READ_QUERY = "SELECT * FROM "+ActivityStats.StatsEntry.Table_Name +" WHERE "+ActivityStats.StatsEntry.Time_Stamp +" = ?";
-        statsdb.rawQuery(SQL_READ_QUERY, new String[] {String.valueOf(date)});
+        String SQL_READ_QUERY = "SELECT * FROM " + ActivityStats.StatsEntry.Table_Name + " WHERE " + ActivityStats.StatsEntry.Time_Stamp + " = ?";
+        statsdb.rawQuery(SQL_READ_QUERY, new String[]{String.valueOf(date)});
 
-    }
-    /*
-    // Data Communiaction Section
-    @Override
-    public void onDataChanged(@NonNull DataEventBuffer dataEventBuffer) {
-        Log.d(TAG, "onDataChanged: " + dataEventBuffer);
-        for (DataEvent event : dataEventBuffer) {
-            if (event.getType() == DataEvent.TYPE_CHANGED) {
-                String path = event.getDataItem().getUri().getPath();
-                if (datapath.equals(path)) {
-                    DataMapItem dataMapItem = DataMapItem.fromDataItem(event.getDataItem());
-                    String message = dataMapItem.getDataMap().getString("data");
-                    Log.v(TAG, "Wear activity received message: " + message);
-                    // Display message in UI
-                    // logthis(message);
-                } else {
-                    Log.e(TAG, "Unrecognized path: " + path);
-                }
-            } else if (event.getType() == DataEvent.TYPE_DELETED) {
-                Log.v(TAG, "Data deleted : " + event.getDataItem().toString());
-            } else {
-                Log.e(TAG, "Unknown data event Type = " + event.getType());
-            }
+        int active_time = 30;
+        int inactive_time = 50;
+        int sleeping_time = 150;
+        String time_stamp = "";
+        cur.moveToFirst();
+        while (!cur.isAfterLast()) {
+            active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
+            inactive_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
+            sleeping_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
+            time_stamp = cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp));
+            cur.moveToNext();
         }
+        stats.setText("Time Spent in Active Class"+ active_time +"\n" +"Time Spent in Inactive Class"+ inactive_time +"\n" +"Time Spent in Sleeping Class"+ sleeping_time +"\n");
+
+        /*
+        ArrayList<BarEntry> BarEntry = new ArrayList<>();
+
+        BarEntry.add(new BarEntry(active_time, 0));
+        BarEntry.add(new BarEntry(inactive_time, 1));
+        BarEntry.add(new BarEntry(sleeping_time, 2));
+
+        BarDataSet dataSet = new BarDataSet(BarEntry, "Pet Stats");
+        BarData data = new BarData();
+        data.addDataSet(dataSet);
+
+        //final ArrayList<String> labels = new ArrayList<>();
+        //labels.add("Active");
+        //labels.add("Inactive");
+        //labels.add("Sleeping");
+
+        final List list_x_axis_name = new ArrayList<>();
+        list_x_axis_name.add("Active");
+        list_x_axis_name.add("Inactive");
+        list_x_axis_name.add("Sleeping");
+
+        XAxis xAxis = chart.getXAxis();
+        xAxis.setGranularity(1f);
+        xAxis.setCenterAxisLabels(true);
+        xAxis.setLabelRotationAngle(-90);
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(list_x_axis_name));
+
+        //chart.setDataSer(dataSet);
+        chart.setData(data);
+        chart.setFitBars(true);
+
+         */
     }
-
-    private void sendData(String message) {
-        PutDataMapRequest dataMap = PutDataMapRequest.create(flag_datapath);
-        dataMap.getDataMap().putString("flag", message);
-        PutDataRequest request = dataMap.asPutDataRequest();
-        request.setUrgent();
-
-        Task<DataItem> dataItemTask = Wearable.getDataClient(this).putDataItem(request);
-        dataItemTask
-                .addOnSuccessListener(new OnSuccessListener<DataItem>() {
-                    @Override
-                    public void onSuccess(DataItem dataItem) {
-                        Log.d(TAG, "Sending message was successful: " + dataItem);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e(TAG, "Sending message failed: " + e);
-                    }
-                })
-        ;
-    }
-
-     */
-
-    private void add_table(){
-
-        int active_value = 999;
-        int inactive_value = 999;
-        int sleeping_value = 999;
-
-        ContentValues cv = new ContentValues();
-
-        cv.put(ActivityStats.StatsEntry.Active,active_value);
-        cv.put(ActivityStats.StatsEntry.Inactive,inactive_value);
-        cv.put(ActivityStats.StatsEntry.Sleeping,sleeping_value);
-        cv.put(ActivityStats.StatsEntry.Time_Stamp, String.valueOf(date));
-
-        statsdb.insert(ActivityStats.StatsEntry.Table_Name,null,cv);
-
-    }
-
 
     /*
     private void read_table(int position){
         if(!cur.move(position)){
             return;
         }
-        cur.MoveToFirst();
+        cur.moveToFirst();
         Timestamp time_stamp = Timestamp.valueOf(cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp)));
 
         int active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
@@ -200,12 +172,11 @@ public class MainActivity extends AppCompatActivity  implements MessageClient.On
         
         int sleeping_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
 
-        textView.setText("Time Spent in Active Class"+ active_time +"\n" +"Time Spent in Inactive Class"+ inactive_time +"\n" +"Time Spent in Sleeping Class"+ sleeping_time +"\n");
+        stats.setText("Time Spent in Active Class"+ active_time +"\n" +"Time Spent in Inactive Class"+ inactive_time +"\n" +"Time Spent in Sleeping Class"+ sleeping_time +"\n");
     }
 
-    */
 
-    /*
+
     private Cursor read_all(){
         return statsdb.query(
                 ActivityStats.StatsEntry.Table_Name,
@@ -216,8 +187,13 @@ public class MainActivity extends AppCompatActivity  implements MessageClient.On
                 null,
                 ActivityStats.StatsEntry.Time_Stamp + " DESC");
         )
-    } */
+    }
 
+    @Override
+    public void onMessageReceived(@NonNull MessageEvent messageEvent) {
+        Log.d(TAG, "MainActivity received message on path: " +  messageEvent.getPath());
+    }
+     */
 
     public void monitorswitch_click(View view) {
         if ( montior_switch.isChecked() )
@@ -243,9 +219,4 @@ public class MainActivity extends AppCompatActivity  implements MessageClient.On
         scheduler.cancel(777);
     }
 
-    @Override
-    public void onMessageReceived(@NonNull MessageEvent messageEvent) {
-        Log.d(TAG, "MainActivity received message on path: " +  messageEvent.getPath());
-
-    }
 }

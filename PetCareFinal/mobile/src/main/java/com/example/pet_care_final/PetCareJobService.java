@@ -19,7 +19,10 @@ import com.google.android.gms.wearable.Wearable;
 
 import android.app.job.JobParameters;
 import android.app.job.JobService;
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -28,6 +31,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.sql.Date;
+import java.text.SimpleDateFormat;
 
 public class PetCareJobService extends JobService implements MessageClient.OnMessageReceivedListener {
 
@@ -55,6 +60,14 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
     private  boolean jobCancelled = false;
     private boolean _waitingForData = false;
     private Context _cx;
+
+
+    private SQLiteDatabase statsdb;
+    private Cursor cur;
+
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    //Date date = sdf.format(new Date ());//tc:  does not compile
+    Date date = null;
 
     @Override
     public boolean onStartJob(JobParameters params) {
@@ -142,6 +155,14 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
                 }
             }
 
+             long insert_succes = add_row(data);
+             if(insert_succes == -1){
+                 Log.d("TAG","Insert Operation Failed");
+                 update_row(data);
+             }
+             else{
+                 Log.d(TAG,"Insert Operation Worked");
+             }
             _waitingForData=false; // reset flag so the job can terminate
 
         }
@@ -165,8 +186,38 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         } catch ( Exception ex ) {
             ex.printStackTrace();
         }
-
         return result;
     }
 
+    private long add_row(int[] data){
+
+        //Assuming data[0] = Active value, data[1] = Inactive value, data[2] = Sleeping value;
+        int active_value = data[0];
+        int inactive_value = data[1];
+        int sleeping_value = data[2];
+
+        ContentValues cv = new ContentValues();
+
+        cv.put(ActivityStats.StatsEntry.Active,active_value);
+        cv.put(ActivityStats.StatsEntry.Inactive,inactive_value);
+        cv.put(ActivityStats.StatsEntry.Sleeping,sleeping_value);
+        cv.put(ActivityStats.StatsEntry.Time_Stamp, String.valueOf(date));
+        long success_val = statsdb.insert(ActivityStats.StatsEntry.Table_Name,null,cv);
+        return success_val;
+    }
+
+    private void update_row(int[] data){
+        int active_value = data[0];
+        int inactive_value = data[1];
+        int sleeping_value = data[2];
+        cur = statsdb.rawQuery("UPDATE " +ActivityStats.StatsEntry.Table_Name + " WHERE "+ ActivityStats.StatsEntry.Time_Stamp +
+                " = " + String.valueOf(date),null);
+        if(cur==null){
+            Log.d(TAG,"Update function failed");
+            return;
+        }
+        else{
+            Log.d(TAG,"Update Row Worked");
+        }
+    }
 }
