@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <uses-feature android:name="android.hardware.type.watch" />
+    <!-- Required for complications to receive complication data and open the provider chooser. -->
+    <uses-permission
+        android:name="com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA"/>
 
     <application
         android:allowBackup="true"
@@ -34,10 +37,31 @@
             </intent-filter>
         </activity>
 
+        <!--
         <service android:name=".PetCareDataService">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
                 <data android:scheme="wear" android:host="*" />
+            </intent-filter>
+        </service>
+        -->
+
+        <service
+            android:name=".WatchFaceService"
+            android:label="pet-care-final"
+            android:permission="android.permission.BIND_WALLPAPER" >
+            <meta-data
+                android:name="android.service.wallpaper"
+                android:resource="@xml/watch_face" />
+            <meta-data
+                android:name="com.google.android.wearable.watchface.preview"
+                android:resource="@drawable/gavin_face" />
+            <intent-filter>
+                <action android:name="android.service.wallpaper.WallpaperService" />
+                <category
+                    android:name=
+                        "com.google.android.wearable.watchface.category.WATCH_FACE" />
+
             </intent-filter>
         </service>
 

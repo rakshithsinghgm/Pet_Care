@@ -1,4 +1,7 @@
 package com.example.pet_care_final;
+import android.os.SystemClock;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class Utils {
@@ -158,6 +161,15 @@ public class Utils {
         return target;
     }
 
+    // https://stackoverflow.com/a/6018431/882436
+    public static double[] toDoubles2(List<Float> floats ) {
+        double[] target = new double[floats.size()];
+        for (int i = 0; i < target.length; i++) {
+            target[i] = floats.get(i);                // java 1.5+ style (outboxing)
+        }
+        return target;
+    }
+
     public static float[] toFloats2(List<Float> vals ) {
         float[] target = new float[vals.size()];
         for (int i = 0; i < target.length; i++) {
@@ -172,5 +184,34 @@ public class Utils {
             target[i] = (float)(double)doubles.get(i);                // java 1.5+ style (outboxing)
         }
         return target;
+    }
+
+
+    // my hacky way to create N roughly-equal sized partitions
+    public static <T> List<List<T>> getPartitions(List<T> collection,int nPartitions){
+
+        List<List<T>> results = new ArrayList<List<T>>();
+
+        final int chunksize = Math.floorDiv( collection.size(),  nPartitions );
+
+        int i = 0;// position in collection
+        for ( int p = 0; p < nPartitions; p++ ) {
+
+            ArrayList<T> chunk = new ArrayList<>();
+
+            for ( int j = i; j < chunksize;j++,i++ )
+                chunk.add(collection.get(j));
+
+            if ( p >= ( nPartitions - 1)) { // last chunk.  fill it up
+                for ( ; i < collection.size(); i++)
+                    chunk.add(collection.get(i));
+            }
+            results.add(chunk);
+        }
+        return results;
+    }
+
+    public static long getCurrentSeconds() {
+        return SystemClock.elapsedRealtime() / 1000;
     }
 }
