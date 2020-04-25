@@ -14,9 +14,13 @@ public class SensorDataAccumulator {
         this.data.add(magnitude);
     }
 
-    public ArrayList<Float> getStats() {
+    public ArrayList<Float> getStats( ) {
+        return null;
+    }
 
-        double[] magArray = Utils.toDoubles(this.data);
+    public static ArrayList<Float> calcStats( List<Float> data ) {
+
+        double[] magArray = Utils.toDoubles2( data );
 
         ArrayList<Float> floats = new ArrayList<>();
 

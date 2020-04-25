@@ -47,7 +47,7 @@ public class TfModel {
                 bestIdx = i;
         }
 
-        Log.d (TAG, String.valueOf(bestIdx));
+        //Log.d (TAG, String.valueOf(bestIdx));
         return bestIdx;
     }
 }
