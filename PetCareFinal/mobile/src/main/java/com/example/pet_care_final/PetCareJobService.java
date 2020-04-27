@@ -32,7 +32,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.sql.Date;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class PetCareJobService extends JobService implements MessageClient.OnMessageReceivedListener {
 
@@ -64,10 +66,8 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
 
     private SQLiteDatabase statsdb;
     private Cursor cur;
-
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    //Date date = sdf.format(new Date ());//tc:  does not compile
-    Date date = null;
+    Calendar cal = Calendar.getInstance();
+    String date = DateFormat.getDateInstance(DateFormat.FULL).format(cal.getTime());
 
     @Override
     public boolean onStartJob(JobParameters params) {
@@ -210,9 +210,41 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         int active_value = data[0];
         int inactive_value = data[1];
         int sleeping_value = data[2];
-        cur = statsdb.rawQuery("UPDATE " +ActivityStats.StatsEntry.Table_Name + " WHERE "+ ActivityStats.StatsEntry.Time_Stamp +
-                " = " + String.valueOf(date),null);
-        if(cur==null){
+
+        // read the record matching today's date
+        String SQL_READ_QUERY = "SELECT * FROM " + ActivityStats.StatsEntry.Table_Name + " WHERE " + ActivityStats.StatsEntry.Time_Stamp + " = ?";
+        cur = statsdb.rawQuery(SQL_READ_QUERY, new String[]{String.valueOf(date)});
+        cur.moveToFirst();
+
+        int past_active_time=0;
+        int past_inactive_time=0;
+        int past_sleeping_time=0;
+        String past_time_stamp;
+        while (!cur.isAfterLast()) {
+            past_active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
+            past_inactive_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
+            past_sleeping_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
+            past_time_stamp = cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp));
+            cur.moveToNext();
+        }
+        cur.close();
+
+        // increment it with fresh readings
+        active_value+=past_active_time;
+        inactive_value+=past_inactive_time;
+        sleeping_value+=past_sleeping_time;
+
+
+        //update the db where it finds the matching record
+        ContentValues cv = new ContentValues();
+        cv.put(ActivityStats.StatsEntry.Active,active_value);
+        cv.put(ActivityStats.StatsEntry.Inactive,inactive_value);
+        cv.put(ActivityStats.StatsEntry.Sleeping,sleeping_value);
+        cv.put(ActivityStats.StatsEntry.Time_Stamp, String.valueOf(date));
+
+        int res_cur = statsdb.update(ActivityStats.StatsEntry.Table_Name, cv," timestamp = ?",new String[]{date});
+
+        if(res_cur==-1){
             Log.d(TAG,"Update function failed");
             return;
         }

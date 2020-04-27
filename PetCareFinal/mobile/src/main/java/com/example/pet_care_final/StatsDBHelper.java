@@ -9,7 +9,7 @@ import com.example.pet_care_final.ActivityStats.*;
 
 public class StatsDBHelper extends SQLiteOpenHelper {
 
-    public static final String DATABASE_NAME = "statsdb";
+    public static final String DATABASE_NAME = "statsdb.db";
     public static final int DATABASE_VERSION = 1;
 
     public StatsDBHelper(@Nullable Context context) {
@@ -21,7 +21,7 @@ public class StatsDBHelper extends SQLiteOpenHelper {
         final String SQL_STATS_DB_TABLE = "CREATE TABLE " +
                 StatsEntry.Table_Name + " (" +
                 StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                StatsEntry.Time_Stamp + "STRING DEFAULT, " +
+                StatsEntry.Time_Stamp + " STRING, " +
                 StatsEntry.Active + " INTEGER, " +
                 StatsEntry.Inactive + " INTEGER, " +
                 StatsEntry.Sleeping + " INTEGER" +

@@ -14,6 +14,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 
@@ -54,19 +55,16 @@ public class MainActivity extends AppCompatActivity  {
     Switch montior_switch;
     boolean monitor_flag=false;
 
-    TextView stats;
+    Button stats_btn;
+    Button active_monitoring_btn;
+
+    private SQLiteDatabase statsdb;
+    private Cursor cur;
 
     public static final String ACTIVITY_CLASS_SLEEPING_STRING = "Sleeping";
     public static final String ACTIVITY_CLASS_INACTIVE_STRING = "Inactive";
     public static final String ACTIVITY_CLASS_ACTIVE_STRING = "Active";
 
-    private SQLiteDatabase statsdb;
-    private Cursor cur;
-
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    //Date date = sdf.format(new Date ());//tc:  does not compile
-    Date date = null;
-    BarChart chart;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,123 +75,25 @@ public class MainActivity extends AppCompatActivity  {
         statsdb = dbHelper.getWritableDatabase();
 
         montior_switch = findViewById(R.id.switch1);
+        stats_btn = findViewById(R.id.stats_btn);
+        active_monitoring_btn = findViewById(R.id.active_monitor_btn);
 
         // todo:  get current job status, and set monitor_switch value
 
-        //DispStats();
     }
 
-    /*
+    public void call_activemonitor_act(View view) {
 
-    ### SERVICES OPTIONAL ###
-    public void startService(View V) {
-
-        String flag = " ";
-        Intent serviceIntent = new Intent(this, PetCareService.class);
-        serviceIntent.putExtra("inputExtra", flag);
-        ContextCompat.startForegroundService(this, serviceIntent);
+        Intent activemonitoring_intent = new Intent(this, ActiveMonitoringActivity.class);
+        this.startActivity(activemonitoring_intent);
     }
 
-    public void stopService(View V) {
+    public void call_stats_act(View view) {
 
-        Intent serviceIntent = new Intent(this, PetCareService.class);
-        stopService(serviceIntent);
-
+        Intent stats_act_intent = new Intent(this, StatsActivity.class);
+        this.startActivity(stats_act_intent);
     }
 
-    */
-
-    // Display Stats Sections
-
-    public void DispStats() {
-
-        String SQL_READ_QUERY = "SELECT * FROM " + ActivityStats.StatsEntry.Table_Name + " WHERE " + ActivityStats.StatsEntry.Time_Stamp + " = ?";
-        statsdb.rawQuery(SQL_READ_QUERY, new String[]{String.valueOf(date)});
-
-        int active_time = 30;
-        int inactive_time = 50;
-        int sleeping_time = 150;
-        String time_stamp = "";
-        cur.moveToFirst();
-        while (!cur.isAfterLast()) {
-            active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
-            inactive_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
-            sleeping_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
-            time_stamp = cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp));
-            cur.moveToNext();
-        }
-        stats.setText("Time Spent in Active Class"+ active_time +"\n" +"Time Spent in Inactive Class"+ inactive_time +"\n" +"Time Spent in Sleeping Class"+ sleeping_time +"\n");
-
-        /*
-        ArrayList<BarEntry> BarEntry = new ArrayList<>();
-
-        BarEntry.add(new BarEntry(active_time, 0));
-        BarEntry.add(new BarEntry(inactive_time, 1));
-        BarEntry.add(new BarEntry(sleeping_time, 2));
-
-        BarDataSet dataSet = new BarDataSet(BarEntry, "Pet Stats");
-        BarData data = new BarData();
-        data.addDataSet(dataSet);
-
-        //final ArrayList<String> labels = new ArrayList<>();
-        //labels.add("Active");
-        //labels.add("Inactive");
-        //labels.add("Sleeping");
-
-        final List list_x_axis_name = new ArrayList<>();
-        list_x_axis_name.add("Active");
-        list_x_axis_name.add("Inactive");
-        list_x_axis_name.add("Sleeping");
-
-        XAxis xAxis = chart.getXAxis();
-        xAxis.setGranularity(1f);
-        xAxis.setCenterAxisLabels(true);
-        xAxis.setLabelRotationAngle(-90);
-        xAxis.setValueFormatter(new IndexAxisValueFormatter(list_x_axis_name));
-
-        //chart.setDataSer(dataSet);
-        chart.setData(data);
-        chart.setFitBars(true);
-
-         */
-    }
-
-    /*
-    private void read_table(int position){
-        if(!cur.move(position)){
-            return;
-        }
-        cur.moveToFirst();
-        Timestamp time_stamp = Timestamp.valueOf(cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp)));
-
-        int active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
-
-        int inactive_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
-        
-        int sleeping_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
-
-        stats.setText("Time Spent in Active Class"+ active_time +"\n" +"Time Spent in Inactive Class"+ inactive_time +"\n" +"Time Spent in Sleeping Class"+ sleeping_time +"\n");
-    }
-
-
-
-    private Cursor read_all(){
-        return statsdb.query(
-                ActivityStats.StatsEntry.Table_Name,
-                null,
-                null,
-                null,
-                null,
-                null,
-                ActivityStats.StatsEntry.Time_Stamp + " DESC");
-        )
-    }
-
-    @Override
-    public void onMessageReceived(@NonNull MessageEvent messageEvent) {
-        Log.d(TAG, "MainActivity received message on path: " +  messageEvent.getPath());
-    }
-     */
 
     public void monitorswitch_click(View view) {
         if ( montior_switch.isChecked() )
