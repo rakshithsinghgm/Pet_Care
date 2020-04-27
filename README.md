@@ -1,8 +1,8 @@
 # Pet_Care
 Sensor and Mobile Computing final project.
 
-Project title:  Cat activity detection
-Authors:  Rakshith Singh, Tom Clunie
+Project title:  Cat activity detection.
+Authors:  Rakshith Singh, Tom Clunie.
 
 # Current User App Interface 
 <a href="url"><img src="https://github.com/rakshithsinghgm/Pet_Care/blob/master/gui_v2.png" title="Current User App Interface" align="center" height=700 max-width="100%"></a>
@@ -29,7 +29,7 @@ We are also interested in identifying which features are most useful in activity
 - real-time inference using tf-lite on smartphone and on the watch
 - 30 minutes of data collection (10m sleeping, 10m inactive/notmoving, 10m active/moving)
 
-## Active Testing/ Refactoring 
+## Active Testing/ Refactoring:
 - user app on the phone to collect data from the watch and display it.
 - job scheduler and SQLITE DB on User app
 - dispaly cumulative summary of pet activity
