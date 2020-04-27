@@ -8,34 +8,29 @@
 
     <TextView
         android:id="@+id/heading"
-        android:layout_width="236dp"
-        android:layout_height="43dp"
-        android:layout_marginStart="87dp"
-        android:layout_marginTop="71dp"
-        android:layout_marginEnd="88dp"
-        android:layout_marginBottom="617dp"
+        android:layout_width="332dp"
+        android:layout_height="85dp"
+        android:layout_marginStart="36dp"
+        android:layout_marginTop="75dp"
+        android:layout_marginBottom="613dp"
         android:text="Stats Activity"
         android:textAlignment="center"
-        android:textSize="25sp"
+        android:textSize="21sp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <com.github.mikephil.charting.charts.PieChart
         android:id="@+id/pieChart"
-        android:layout_width="378dp"
-        android:layout_height="437dp"
-        android:layout_marginStart="17dp"
-        android:layout_marginTop="122dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="78dp"
+        android:layout_width="360dp"
+        android:layout_height="388dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="234dp"
+        android:layout_marginBottom="109dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0">
+        app:layout_constraintTop_toTopOf="parent">
 
     </com.github.mikephil.charting.charts.PieChart>
 

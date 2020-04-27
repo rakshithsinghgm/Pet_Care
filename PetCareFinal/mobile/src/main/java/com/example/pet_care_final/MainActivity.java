@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity  {
 
         // todo:  get current job status, and set monitor_switch value
 
-        //DispStats();
     }
 
     public void call_activemonitor_act(View view) {
@@ -94,115 +93,6 @@ public class MainActivity extends AppCompatActivity  {
         Intent stats_act_intent = new Intent(this, StatsActivity.class);
         this.startActivity(stats_act_intent);
     }
-
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-    //Date date = sdf.format(new Date ());//tc:  does not compile
-    Date date = null;
-
-    public void DispStats() {
-
-        SQLiteDatabase statsdb;
-        Cursor cur = null;
-
-        StatsDBHelper dbHelper = new StatsDBHelper(this);
-        statsdb = dbHelper.getWritableDatabase();
-
-        String SQL_READ_QUERY = "SELECT * FROM " + ActivityStats.StatsEntry.Table_Name + " WHERE " + ActivityStats.StatsEntry.Time_Stamp + " = ?";
-        statsdb.rawQuery(SQL_READ_QUERY, new String[]{String.valueOf(date)});
-
-        int active_time = 30;
-        int inactive_time = 50;
-        int sleeping_time = 150;
-        String time_stamp = "";
-        cur.moveToFirst();
-
-        while (!cur.isAfterLast()) {
-            active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
-            inactive_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
-            sleeping_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
-            time_stamp = cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp));
-            cur.moveToNext();
-        }
-        //stats.setText("Time Spent in Active Class"+ active_time +"\n" +"Time Spent in Inactive Class"+ inactive_time +"\n" +"Time Spent in Sleeping Class"+ sleeping_time +"\n");
-
-        /*BarChart barChart = (BarChart) findViewById(R.id.barchart);
-
-        ArrayList<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(8f, 0));
-        entries.add(new BarEntry(2f, 1));
-        entries.add(new BarEntry(5f, 2));
-        entries.add(new BarEntry(20f, 3));
-        entries.add(new BarEntry(15f, 4));
-        entries.add(new BarEntry(19f, 5));
-
-        BarDataSet bardataset = new BarDataSet(entries, "Cells");
-
-        ArrayList<String> labels = new ArrayList<String>();
-        labels.add("2016");
-        labels.add("2015");
-        labels.add("2014");
-        labels.add("2013");
-        labels.add("2012");
-        labels.add("2011");
-
-        BarData data = new BarData(labels, bardataset);
-        barChart.setData(data); // set the data and list of labels into chart
-        barChart.setDescription("Set Bar Chart Description Here");  // set the description
-        bardataset.setColors(ColorTemplate.COLORFUL_COLORS);
-        barChart.animateY(5000);
-        */
-    }
-
-    /*
-    private void read_table(int position){
-        if(!cur.move(position)){
-            return;
-        }
-        cur.moveToFirst();
-        Timestamp time_stamp = Timestamp.valueOf(cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp)));
-
-        int active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
-
-        int inactive_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
-
-        int sleeping_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
-
-        stats.setText("Time Spent in Active Class"+ active_time +"\n" +"Time Spent in Inactive Class"+ inactive_time +"\n" +"Time Spent in Sleeping Class"+ sleeping_time +"\n");
-    }
-
-
-
-    private Cursor read_all(){
-        return statsdb.query(
-                ActivityStats.StatsEntry.Table_Name,
-                null,
-                null,
-                null,
-                null,
-                null,
-                ActivityStats.StatsEntry.Time_Stamp + " DESC");
-        )
-    }
-    */
-    /*
-
-    ### SERVICES OPTIONAL ###
-    public void startService(View V) {
-
-        String flag = " ";
-        Intent serviceIntent = new Intent(this, PetCareService.class);
-        serviceIntent.putExtra("inputExtra", flag);
-        ContextCompat.startForegroundService(this, serviceIntent);
-    }
-
-    public void stopService(View V) {
-
-        Intent serviceIntent = new Intent(this, PetCareService.class);
-        stopService(serviceIntent);
-
-    }
-
-    */
 
 
     public void monitorswitch_click(View view) {
