@@ -29,15 +29,9 @@ public class ActiveMonitoringActivity extends AppCompatActivity implements Messa
     // the watch will publish to this path after it receives a publish command
     static final String RESPONSE_ACTIVITY_STATE_PATH = "/pet-care-sensor-activity-state-response";
 
-    private boolean _waitingForData = false;
+    // private boolean _waitingForData = false;
     private Context _cx;
-
     TextView result_txt;
-
-    String prediction;
-
-    int[] result = new int[1];
-    int[] data = new int[1];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,28 +43,7 @@ public class ActiveMonitoringActivity extends AppCompatActivity implements Messa
         //init message listener
         Wearable.getMessageClient( this._cx ).addListener(this);
 
-        _waitingForData = true;
         new NodeMessageBroadcasterTask( _cx, REQUEST_ACTIVITY_STATE_PATH, null ).execute();
-        // data has been received, and we are done
-
-        //stopListeningForMessages();
-
-        data[0]=999;
-        if(data[0]==1){
-            prediction = "Active";
-        }
-        else if(data[0]==2){
-            prediction = "Inactive";
-        }
-        else if(data[0]==3){
-            prediction="Sleeping";
-        }
-        else{
-            prediction="None";
-        }
-        result_txt = findViewById(R.id.result);
-        result_txt.setText("Current Class is "+prediction);
-
     }
 
     @Override
@@ -81,33 +54,34 @@ public class ActiveMonitoringActivity extends AppCompatActivity implements Messa
 
         if ( msgPath.equals(RESPONSE_ACTIVITY_STATE_PATH)) {
 
-            if ( !_waitingForData ) {
-                Log.d(TAG,"Received data that we didn't ask for.  Possible duplicate");
-                return;
+            // we have data!
+            String prediction = "Error";
+
+            if ( messageEvent.getData() != null && messageEvent.getData().length > 0 ) {
+                Log.d( TAG, "Received elements, n=" + String.valueOf(messageEvent.getData().length) );
+
+                byte currentClass = messageEvent.getData()[0];
+
+                switch ( currentClass ) {
+                    case 0:
+                        prediction="Inactive/sleeping";
+                        break;
+                    case 1:
+                        prediction="Active/not moving";
+                        break;
+                    case 2:
+                        prediction="Active/moving";
+                        break;
+                }
             }
 
-            // we have data!
-            data = deserializeActivityData( messageEvent.getData() );
-            Log.d( TAG, "Received elements, n=" + String.valueOf(data.length) );
-
+            result_txt = findViewById(R.id.result);
+            result_txt.setText("Current Class is "+prediction);
         }
-            _waitingForData=false; // reset flag so the job can terminate
-
     }
 
     private void stopListeningForMessages() {
         Log.d(TAG,"Unregistering message listener");
         Wearable.getMessageClient(this.getApplicationContext() ).removeListener(this);
-    }
-
-    private int[] deserializeActivityData( byte[] data ) {
-        try {
-            ByteArrayInputStream bis = new ByteArrayInputStream(data);
-            ObjectInputStream in = new ObjectInputStream(bis);
-            result = (int[])in.readObject();
-        } catch ( Exception ex ) {
-            ex.printStackTrace();
-        }
-        return result;
     }
 }
