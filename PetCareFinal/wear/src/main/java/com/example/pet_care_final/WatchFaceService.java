@@ -52,10 +52,10 @@ public class WatchFaceService
 
     final MessageClient.OnMessageReceivedListener _messageService = new MessageClient.OnMessageReceivedListener() {
 
-        // send this to tell the watch to start data collection
+        // send this to tell the watch to start data collection (not implemented)
         static final String START_DATA_COLLECTION_PATH = "/pet-care-sensor-data-start";
 
-        // send this to tell the watch to stop data collection
+        // send this to tell the watch to stop data collection (not implemented)
         static final String STOP_DATA_COLLECTION_PATH = "/pet-care-sensor-data-stop";
 
         // send this to tell the watch to publish (and reset) its current data
@@ -311,6 +311,8 @@ public class WatchFaceService
                 }
 
             } else {  // recent activity, ensure sensors are enabled
+
+                Log.d(TAG, "Recent activity detected. Current sensor status=" + _sensorMgr.isEnabled() );
 
                 if ( !_sensorMgr.isEnabled() ) {
                     Log.d(TAG, "Enabling previously-disabled sensors");
