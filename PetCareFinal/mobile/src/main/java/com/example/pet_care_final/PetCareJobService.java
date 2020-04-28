@@ -23,6 +23,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -75,7 +76,8 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         Log.d(TAG,"Job Started");
 
         this._cx = this.getApplicationContext();
-
+        StatsDBHelper dbHelper = new StatsDBHelper(this);
+        statsdb = dbHelper.getWritableDatabase();
         // init message listener
         Wearable.getMessageClient( this._cx ).addListener(this);
 
