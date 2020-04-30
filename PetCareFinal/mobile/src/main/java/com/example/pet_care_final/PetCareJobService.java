@@ -144,7 +144,7 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
              long insert_succes = add_row(data);
              if(insert_succes == -1){
                  Log.d("TAG","Insert Operation Failed");
-                 //update_row(data);
+                 update_row(data);
              }
              else{
                  Log.d(TAG,"Insert Operation Worked");
@@ -187,13 +187,17 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         return success_val;
     }
 
-    /*
+
     private void update_row(int[] data){
 
         // read the record matching today's date
         String SQL_READ_QUERY = "SELECT * FROM " + ActivityStats.StatsEntry.Table_Name + " WHERE " + ActivityStats.StatsEntry.Time_Stamp + " = ?";
         cur = statsdb.rawQuery(SQL_READ_QUERY, new String[]{String.valueOf(date)});
         cur.moveToFirst();
+
+        int active_value = data[0];
+        int inactive_value = data[1];
+        int sleeping_value = data[2];
 
         int past_active_time=0;
         int past_inactive_time=0;
@@ -231,5 +235,4 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
             Log.d(TAG,"Update Row Worked");
         }
     }
-     */
 }
