@@ -23,7 +23,8 @@ public class StatsDBHelper extends SQLiteOpenHelper {
                 StatsEntry.Time_Stamp + " STRING PRIMARY KEY, " +
                 StatsEntry.Sleeping + " INTEGER, " +
                 StatsEntry.Inactive + " INTEGER, " +
-                StatsEntry.Active + " INTEGER " +
+                StatsEntry.Active + " INTEGER," +
+                StatsEntry.Distance + " REAL " +
                 ");";
         db.execSQL(SQL_STATS_DB_TABLE);
     }

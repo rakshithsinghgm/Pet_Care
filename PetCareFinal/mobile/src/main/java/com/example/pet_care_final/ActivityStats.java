@@ -11,5 +11,6 @@ public class ActivityStats {
         public static final String Active = "active";
         public static final String Inactive = "inactive";
         public static final String Sleeping = "sleeping";
+        public static final String Distance = "distance";
     }
 }

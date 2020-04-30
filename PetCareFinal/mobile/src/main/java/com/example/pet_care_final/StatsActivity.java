@@ -64,21 +64,27 @@ public class StatsActivity extends AppCompatActivity {
         int inactive_time =0;
         int sleeping_time = 0;
         String time_stamp = "";
+        double distance = 0.0;
 
         while (!cur.isAfterLast()) {
             sleeping_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
             inactive_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
             active_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
             time_stamp = cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp));
+            distance = cur.getDouble(cur.getColumnIndex(ActivityStats.StatsEntry.Distance));
             cur.moveToNext();
         }
 
         TextView heading;
         heading = findViewById(R.id.heading);
         heading.setText("Stats for "+date+" is ");
+        // active - pink, inactive - orange, sleeping - yellow
+
+        TextView labels;
+        labels = findViewById(R.id.labels_info);
+        labels.setText(" Pink -> Active\n Inactive -> Orange\n Sleeping -> Yellow\n Total Distance -> "+distance);
         getEntries(active_time,inactive_time,sleeping_time);
         disp_graph();
-
         cur.close();
         statsdb.close();
         dbHelper.close();
@@ -86,9 +92,6 @@ public class StatsActivity extends AppCompatActivity {
 
     private void getEntries(int a,int b, int c) {
         pieEntries = new ArrayList<>();
-        //a += 777;
-        //b += 888;
-        //c += 999;
         pieEntries.add(new PieEntry(a, 0));
         pieEntries.add(new PieEntry(b, 1));
         pieEntries.add(new PieEntry(c, 2));
