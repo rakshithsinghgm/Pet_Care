@@ -20,11 +20,10 @@ public class StatsDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         final String SQL_STATS_DB_TABLE = "CREATE TABLE " +
                 StatsEntry.Table_Name + " (" +
-                StatsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 StatsEntry.Time_Stamp + " STRING PRIMARY KEY, " +
-                StatsEntry.Active + " INTEGER, " +
+                StatsEntry.Sleeping + " INTEGER, " +
                 StatsEntry.Inactive + " INTEGER, " +
-                StatsEntry.Sleeping + " INTEGER" +
+                StatsEntry.Active + " INTEGER " +
                 ");";
         db.execSQL(SQL_STATS_DB_TABLE);
     }
