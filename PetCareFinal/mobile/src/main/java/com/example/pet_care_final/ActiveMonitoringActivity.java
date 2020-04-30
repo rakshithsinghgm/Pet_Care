@@ -17,17 +17,9 @@ import org.w3c.dom.Text;
 import java.io.ByteArrayInputStream;
 import java.io.ObjectInputStream;
 
-import static com.example.pet_care_final.PetCareJobService.REQUEST_DATA_PATH;
-
 public class ActiveMonitoringActivity extends AppCompatActivity implements MessageClient.OnMessageReceivedListener {
 
     private static final String TAG = "ACTIVE_MONITORING_ACTIVITY";
-
-    // send this to tell the watch to publish the current activity state
-    static final String REQUEST_ACTIVITY_STATE_PATH = "/pet-care-sensor-activity-state-request";
-
-    // the watch will publish to this path after it receives a publish command
-    static final String RESPONSE_ACTIVITY_STATE_PATH = "/pet-care-sensor-activity-state-response";
 
     // private boolean _waitingForData = false;
     private Context _cx;
@@ -43,7 +35,7 @@ public class ActiveMonitoringActivity extends AppCompatActivity implements Messa
         //init message listener
         Wearable.getMessageClient( this._cx ).addListener(this);
 
-        new NodeMessageBroadcasterTask( _cx, REQUEST_ACTIVITY_STATE_PATH, null ).execute();
+        new NodeMessageBroadcasterTask( _cx, Constants.REQUEST_ACTIVITY_STATE_PATH, null ).execute();
     }
 
     @Override
@@ -52,7 +44,7 @@ public class ActiveMonitoringActivity extends AppCompatActivity implements Messa
 
         String msgPath = messageEvent.getPath();
 
-        if ( msgPath.equals(RESPONSE_ACTIVITY_STATE_PATH)) {
+        if ( msgPath.equals( Constants.RESPONSE_ACTIVITY_STATE_PATH)) {
 
             // we have data!
             String prediction = "Error";
@@ -63,13 +55,13 @@ public class ActiveMonitoringActivity extends AppCompatActivity implements Messa
                 byte currentClass = messageEvent.getData()[0];
 
                 switch ( currentClass ) {
-                    case 0:
+                    case Constants.ACTIVITY_CLASS_SLEEPING:
                         prediction="Inactive/sleeping";
                         break;
-                    case 1:
+                    case Constants.ACTIVITY_CLASS_INACTIVE:
                         prediction="Active/not moving";
                         break;
-                    case 2:
+                    case Constants.ACTIVITY_CLASS_ACTIVE:
                         prediction="Active/moving";
                         break;
                 }

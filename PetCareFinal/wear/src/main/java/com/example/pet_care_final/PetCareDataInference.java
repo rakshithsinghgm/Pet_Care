@@ -58,6 +58,8 @@ public class PetCareDataInference {
             return result;
         }
 
+        // todo:  duration may be < keySet size leading to inflated class times
+
         for ( Long k : laBatches.keySet() ) {
 
             // Log.d(TAG, "la Batch k="  + String.valueOf(k) + ", sz=" + laBatches.get(k).size() + ", total=" + linAccelData.size()  );

@@ -41,29 +41,9 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
 
     private static final String TAG = "PET_CARE_JOB_SERVICE";
 
-    private static final int NUM_CLASSES = 3;// number of activity classes we can predict
-
-    // start messages
-    // these should match wear/petcaredataservice.java
-
-    // send this to tell the watch to start data collection
-    public static final String START_DATA_COLLECTION_PATH = "/pet-care-sensor-data-start";
-
-    // send this to tell the watch to stop data collection
-    public static final String STOP_DATA_COLLECTION_PATH = "/pet-care-sensor-data-stop";
-
-    // send this to tell the watch to publish (and reset) its current data
-    public static final String REQUEST_DATA_PATH = "/pet-care-sensor-data-request";
-
-    // the watch will publish to this path after it receives a publish command
-    public static final String RESPONSE_DATA_PATH = "/pet-care-sensor-data-response";
-
-    // end messages
-
     private  boolean jobCancelled = false;
     private boolean _waitingForData = false;
     private Context _cx;
-
 
     private SQLiteDatabase statsdb;
     private Cursor cur;
@@ -99,7 +79,7 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
 
                 // Broadcast a message to get the data
                 _waitingForData = true;
-                new NodeMessageBroadcasterTask( _cx, REQUEST_DATA_PATH, null ).execute();
+                new NodeMessageBroadcasterTask( _cx, Constants.REQUEST_DATA_PATH, null ).execute();
 
                 // wait for the message
                 while ( _waitingForData ) {
@@ -129,6 +109,10 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         jobCancelled = true;
         _waitingForData=false;   // may not be necessary
         this.stopListeningForMessages();
+
+        if ( statsdb != null )
+            statsdb.close();
+
         return true;
     }
 
@@ -138,7 +122,7 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
 
         String msgPath = messageEvent.getPath();
 
-        if ( msgPath.equals(RESPONSE_DATA_PATH)) {
+        if ( msgPath.equals( Constants.RESPONSE_DATA_PATH )) {
 
             if ( !_waitingForData ) {
                 Log.d(TAG,"Received data that we didn't ask for.  Possible duplicate");
@@ -160,13 +144,13 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
              long insert_succes = add_row(data);
              if(insert_succes == -1){
                  Log.d("TAG","Insert Operation Failed");
-                 update_row(data);
+                 //update_row(data);
              }
              else{
                  Log.d(TAG,"Insert Operation Worked");
              }
             _waitingForData=false; // reset flag so the job can terminate
-
+            statsdb.close();
         }
 
     }
@@ -193,25 +177,18 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
 
     private long add_row(int[] data){
 
-        //Assuming data[0] = Active value, data[1] = Inactive value, data[2] = Sleeping value;
-        int active_value = data[0];
-        int inactive_value = data[1];
-        int sleeping_value = data[2];
-
         ContentValues cv = new ContentValues();
 
-        cv.put(ActivityStats.StatsEntry.Active,active_value);
-        cv.put(ActivityStats.StatsEntry.Inactive,inactive_value);
-        cv.put(ActivityStats.StatsEntry.Sleeping,sleeping_value);
+        cv.put(ActivityStats.StatsEntry.Active, data[Constants.ACTIVITY_CLASS_ACTIVE] );
+        cv.put(ActivityStats.StatsEntry.Inactive, data[Constants.ACTIVITY_CLASS_INACTIVE] );
+        cv.put(ActivityStats.StatsEntry.Sleeping, data[Constants.ACTIVITY_CLASS_SLEEPING] );
         cv.put(ActivityStats.StatsEntry.Time_Stamp, String.valueOf(date));
         long success_val = statsdb.insert(ActivityStats.StatsEntry.Table_Name,null,cv);
         return success_val;
     }
 
+    /*
     private void update_row(int[] data){
-        int active_value = data[0];
-        int inactive_value = data[1];
-        int sleeping_value = data[2];
 
         // read the record matching today's date
         String SQL_READ_QUERY = "SELECT * FROM " + ActivityStats.StatsEntry.Table_Name + " WHERE " + ActivityStats.StatsEntry.Time_Stamp + " = ?";
@@ -254,4 +231,5 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
             Log.d(TAG,"Update Row Worked");
         }
     }
+     */
 }

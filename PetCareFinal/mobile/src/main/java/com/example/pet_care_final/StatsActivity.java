@@ -66,9 +66,9 @@ public class StatsActivity extends AppCompatActivity {
         String time_stamp = "";
 
         while (!cur.isAfterLast()) {
-            active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
-            inactive_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
-            sleeping_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
+            active_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
+            inactive_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
+            sleeping_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
             time_stamp = cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp));
             cur.moveToNext();
         }
@@ -78,13 +78,17 @@ public class StatsActivity extends AppCompatActivity {
         heading.setText("Stats for "+date+" is ");
         getEntries(active_time,inactive_time,sleeping_time);
         disp_graph();
+
+        cur.close();
+        statsdb.close();
+        dbHelper.close();
     }
 
     private void getEntries(int a,int b, int c) {
         pieEntries = new ArrayList<>();
-        a += 777;
-        b += 888;
-        c += 999;
+        //a += 777;
+        //b += 888;
+        //c += 999;
         pieEntries.add(new PieEntry(a, 0));
         pieEntries.add(new PieEntry(b, 1));
         pieEntries.add(new PieEntry(c, 2));

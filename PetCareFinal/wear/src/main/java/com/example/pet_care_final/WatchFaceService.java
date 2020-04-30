@@ -108,6 +108,10 @@ public class WatchFaceService
                 oos.writeObject(_stats);
                 byte[] data= bos.toByteArray();
 
+                Log.d(TAG, "Publishing data:");
+                for ( int i = 0; i < _stats.length; i++ )
+                    Log.d(TAG, "i=" + i + ", val=" + _stats[i] );
+
                 // reset stats
                 _stats = new int[NUM_CLASSES];
 
@@ -280,23 +284,29 @@ public class WatchFaceService
                 _lastMotionDetectedSeconds = currentSeconds;
             }
 
+            // time between ticks
             long lastTimeTickDelta = currentSeconds - _lastTimeTickSeconds;
 
             // wait for next tick?
             if ( lastTimeTickDelta < MIN_TICK_INTERVAL_SECS )
                 return;
 
+            // update last tick time
+            _lastTimeTickSeconds = currentSeconds;
+
             // sufficient time has passed
             //  if the sensors aren't active, it's because the pet isn't moving.  accumulate sleeping time
             //  ideally we would check to see if the sensor is being charged or something
 
-            if ( !_sensorMgr.isEnabled() )
+            if ( !_sensorMgr.isEnabled() ) {
+                Log.d(TAG, "Sensors not enabled, adding " + lastTimeTickDelta + " seconds to sleeping class");
                 _stats[CLASS_SLEEPING] += lastTimeTickDelta; // do we need to account for lastSensorCollectionSecs?
+                _lastActivityState = (byte)CLASS_SLEEPING;
+            }
 
             // motion detection logic
             //  if recently detected motion, enable the sensors if they weren't already
             //  else, wait until motion delay has passed, and then disable the sensors until we detect motion again
-
             long lastMotionDetectedDelta = currentSeconds - _lastMotionDetectedSeconds;
             if ( lastMotionDetectedDelta > SENSORS_SHUTDOWN_DELAY ) {
 
