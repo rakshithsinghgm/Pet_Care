@@ -182,6 +182,11 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         cv.put(ActivityStats.StatsEntry.Inactive, data[Constants.ACTIVITY_CLASS_INACTIVE] );
         cv.put(ActivityStats.StatsEntry.Active, data[Constants.ACTIVITY_CLASS_ACTIVE] );
         cv.put(ActivityStats.StatsEntry.Time_Stamp, String.valueOf(date));
+
+        // distance = active_time*speed ( speed = 80 cms/second, distance in miles )
+        double distance = data[Constants.ACTIVITY_CLASS_ACTIVE] * 80;
+        cv.put(ActivityStats.StatsEntry.Distance,distance);
+
         long success_val = statsdb.insert(ActivityStats.StatsEntry.Table_Name,null,cv);
         return success_val;
     }
@@ -197,16 +202,20 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         int active_value = data[2];
         int inactive_value = data[1];
         int sleeping_value = data[0];
+        double dist = 0.0;
 
         int past_active_time=0;
         int past_inactive_time=0;
         int past_sleeping_time=0;
         String past_time_stamp;
+        double past_distance = 0.0;
+
         while (!cur.isAfterLast()) {
             past_sleeping_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
             past_inactive_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
             past_active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
             past_time_stamp = cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp));
+            past_distance = cur.getDouble(cur.getColumnIndex(ActivityStats.StatsEntry.Distance));
             cur.moveToNext();
         }
         cur.close();
@@ -215,6 +224,7 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         active_value+=past_active_time;
         inactive_value+=past_inactive_time;
         sleeping_value+=past_sleeping_time;
+        dist = past_distance + ( active_value*80);
 
 
         //update the db where it finds the matching record
@@ -223,6 +233,7 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         cv.put(ActivityStats.StatsEntry.Inactive,inactive_value);
         cv.put(ActivityStats.StatsEntry.Active,active_value);
         cv.put(ActivityStats.StatsEntry.Time_Stamp, String.valueOf(date));
+        cv.put(ActivityStats.StatsEntry.Distance,dist);
 
         int res_cur = statsdb.update(ActivityStats.StatsEntry.Table_Name, cv," timestamp = ?",new String[]{date});
 
