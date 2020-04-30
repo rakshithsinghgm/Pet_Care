@@ -178,10 +178,9 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
     private long add_row(int[] data){
 
         ContentValues cv = new ContentValues();
-
-        cv.put(ActivityStats.StatsEntry.Active, data[Constants.ACTIVITY_CLASS_ACTIVE] );
-        cv.put(ActivityStats.StatsEntry.Inactive, data[Constants.ACTIVITY_CLASS_INACTIVE] );
         cv.put(ActivityStats.StatsEntry.Sleeping, data[Constants.ACTIVITY_CLASS_SLEEPING] );
+        cv.put(ActivityStats.StatsEntry.Inactive, data[Constants.ACTIVITY_CLASS_INACTIVE] );
+        cv.put(ActivityStats.StatsEntry.Active, data[Constants.ACTIVITY_CLASS_ACTIVE] );
         cv.put(ActivityStats.StatsEntry.Time_Stamp, String.valueOf(date));
         long success_val = statsdb.insert(ActivityStats.StatsEntry.Table_Name,null,cv);
         return success_val;
@@ -195,18 +194,18 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         cur = statsdb.rawQuery(SQL_READ_QUERY, new String[]{String.valueOf(date)});
         cur.moveToFirst();
 
-        int active_value = data[0];
+        int active_value = data[2];
         int inactive_value = data[1];
-        int sleeping_value = data[2];
+        int sleeping_value = data[0];
 
         int past_active_time=0;
         int past_inactive_time=0;
         int past_sleeping_time=0;
         String past_time_stamp;
         while (!cur.isAfterLast()) {
-            past_active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
-            past_inactive_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
             past_sleeping_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
+            past_inactive_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
+            past_active_time = cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
             past_time_stamp = cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp));
             cur.moveToNext();
         }
@@ -220,9 +219,9 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
 
         //update the db where it finds the matching record
         ContentValues cv = new ContentValues();
-        cv.put(ActivityStats.StatsEntry.Active,active_value);
-        cv.put(ActivityStats.StatsEntry.Inactive,inactive_value);
         cv.put(ActivityStats.StatsEntry.Sleeping,sleeping_value);
+        cv.put(ActivityStats.StatsEntry.Inactive,inactive_value);
+        cv.put(ActivityStats.StatsEntry.Active,active_value);
         cv.put(ActivityStats.StatsEntry.Time_Stamp, String.valueOf(date));
 
         int res_cur = statsdb.update(ActivityStats.StatsEntry.Table_Name, cv," timestamp = ?",new String[]{date});

@@ -66,9 +66,9 @@ public class StatsActivity extends AppCompatActivity {
         String time_stamp = "";
 
         while (!cur.isAfterLast()) {
-            active_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
-            inactive_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
             sleeping_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Sleeping));
+            inactive_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
+            active_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
             time_stamp = cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp));
             cur.moveToNext();
         }

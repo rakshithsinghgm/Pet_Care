@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity  {
 
     Button stats_btn;
     Button active_monitoring_btn;
+    boolean monitor_btn_state = false;
 
     private SQLiteDatabase statsdb;
     private Cursor cur;
@@ -31,7 +32,6 @@ public class MainActivity extends AppCompatActivity  {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         StatsDBHelper dbHelper = new StatsDBHelper(this);
         statsdb = dbHelper.getWritableDatabase();
 
@@ -57,10 +57,13 @@ public class MainActivity extends AppCompatActivity  {
 
 
     public void monitorswitch_click(View view) {
-        if ( montior_switch.isChecked() )
+        if ( montior_switch.isChecked()) {
             scheduleJob();
-        else
+            //monitor_btn_state = true;
+        }
+        else{
             cancelJob();
+        }
     }
 
     private void scheduleJob(){
@@ -78,6 +81,26 @@ public class MainActivity extends AppCompatActivity  {
 
         JobScheduler scheduler = (JobScheduler) getSystemService(JOB_SCHEDULER_SERVICE);
         scheduler.cancel(777);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        // Save UI state changes to the savedInstanceState.
+        // This bundle will be passed to onCreate if the process is
+        // killed and restarted.
+        savedInstanceState.putBoolean("monitor_btn_state_val",monitor_btn_state);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        // Restore UI state from the savedInstanceState.
+        // This bundle has also been passed to onCreate.
+        monitor_btn_state = savedInstanceState.getBoolean("monitor_btn_state_val");
+        //if(monitor_btn_state == true){
+            //montior_switch.setChecked(true);
+        //}
     }
 
 }
