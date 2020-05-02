@@ -39,7 +39,7 @@ public class WatchFaceService
     static final int NUM_CLASSES = 3;   // number of predicted classes
     int[] _stats = new int[NUM_CLASSES];
     static final int CLASS_SLEEPING = 0;
-    int _lastSensorCollectionSecs = 0;
+    long _lastSensorCollectionSecs = 0;
     byte _lastActivityState = (byte)CLASS_SLEEPING;
 
     // flags if start/stop is requested remotely
@@ -151,11 +151,14 @@ public class WatchFaceService
         }
         );
 
-        // sensor manager
-        _sensorMgr = new PetCareSensorManager( getApplicationContext() );
         try {
-            _sensorMgr.enableSensors(
-                    new Runnable() {
+            // sensor manager
+            if ( _sensorMgr != null )
+                _sensorMgr.close();
+
+            // sensors are enabled in constructor
+            _sensorMgr = new PetCareSensorManager( getApplicationContext()
+                    , new Runnable() {
                         @Override
                         public void run() {
                             onSensorInterval();
@@ -175,11 +178,11 @@ public class WatchFaceService
 
     void onSensorInterval() {
 
-        final int currentSeconds = (int) ( SystemClock.elapsedRealtime() / 1000);
+        final long currentSeconds = Utils.getCurrentSeconds();
         if ( _lastSensorCollectionSecs == 0 )
             _lastSensorCollectionSecs = currentSeconds;
 
-        final int deltaSeconds =currentSeconds - _lastSensorCollectionSecs;
+        final long deltaSeconds =currentSeconds - _lastSensorCollectionSecs;
         if ( deltaSeconds <= COLLECTION_INTERVAL_SECS )
             return;
 
@@ -190,10 +193,11 @@ public class WatchFaceService
                 , _sensorMgr.linAccelSensorListener.magnitudes
                 , _sensorMgr.gyroscopeSensorListener.times
                 , _sensorMgr.gyroscopeSensorListener.magnitudes
-                , deltaSeconds
+                , (int)deltaSeconds
         );
 
-        _sensorMgr.clearSensorData();
+        if ( _sensorMgr != null )
+            _sensorMgr.clearSensorData();
 
         // accumulate stats
         // update last motion detection
@@ -221,7 +225,7 @@ public class WatchFaceService
 
         if ( _sensorMgr != null ) {
             try {
-                _sensorMgr.disableSensors();
+                _sensorMgr.close();
             } catch ( Exception ex ) {
                 ex.printStackTrace();
             } finally {
@@ -298,7 +302,7 @@ public class WatchFaceService
             //  if the sensors aren't active, it's because the pet isn't moving.  accumulate sleeping time
             //  ideally we would check to see if the sensor is being charged or something
 
-            if ( !_sensorMgr.isEnabled() ) {
+            if ( _sensorMgr == null ) {
                 Log.d(TAG, "Sensors not enabled, adding " + lastTimeTickDelta + " seconds to sleeping class");
                 _stats[CLASS_SLEEPING] += lastTimeTickDelta; // do we need to account for lastSensorCollectionSecs?
                 _lastActivityState = (byte)CLASS_SLEEPING;
@@ -308,13 +312,15 @@ public class WatchFaceService
             //  if recently detected motion, enable the sensors if they weren't already
             //  else, wait until motion delay has passed, and then disable the sensors until we detect motion again
             long lastMotionDetectedDelta = currentSeconds - _lastMotionDetectedSeconds;
+
             if ( lastMotionDetectedDelta > SENSORS_SHUTDOWN_DELAY ) {
 
                 // delay exceeded, we can shut down the sensors
-                if ( _sensorMgr.isEnabled() ) {
+                if ( _sensorMgr != null ) {
                     Log.d(TAG, "Last motion detection time exceeded delay, stopping sensors");
                     try {
-                        _sensorMgr.disableSensors();
+                        _sensorMgr.close();
+                        _sensorMgr = null;
                     } catch ( Exception ex ) {
                         ex.printStackTrace();
                     }
@@ -322,12 +328,13 @@ public class WatchFaceService
 
             } else {  // recent activity, ensure sensors are enabled
 
-                Log.d(TAG, "Recent activity detected. Current sensor status=" + _sensorMgr.isEnabled() );
+                Log.d(TAG, "Recent activity detected. Current sensor status=" + ( _sensorMgr != null ) );
 
-                if ( !_sensorMgr.isEnabled() ) {
+                if ( _sensorMgr == null ) {
                     Log.d(TAG, "Enabling previously-disabled sensors");
                     try {
-                        _sensorMgr.enableSensors(new Runnable() {
+                        _sensorMgr = new PetCareSensorManager( getApplicationContext()
+                                , new Runnable() {
                             @Override
                             public void run() {
                                 onSensorInterval();

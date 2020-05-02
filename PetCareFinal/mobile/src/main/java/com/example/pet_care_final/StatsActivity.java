@@ -71,7 +71,7 @@ public class StatsActivity extends AppCompatActivity {
             inactive_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Inactive));
             active_time += cur.getInt(cur.getColumnIndex(ActivityStats.StatsEntry.Active));
             time_stamp = cur.getString(cur.getColumnIndex(ActivityStats.StatsEntry.Time_Stamp));
-            distance = cur.getDouble(cur.getColumnIndex(ActivityStats.StatsEntry.Distance));
+            distance += cur.getDouble(cur.getColumnIndex(ActivityStats.StatsEntry.Distance));
             cur.moveToNext();
         }
 
