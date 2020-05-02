@@ -67,6 +67,8 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
 
     private void dobackGroundWork(final JobParameters params) {
 
+        final int WAIT_TIMEOUT_SECS = 10;
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -81,8 +83,10 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
                 _waitingForData = true;
                 new NodeMessageBroadcasterTask( _cx, Constants.REQUEST_DATA_PATH, null ).execute();
 
-                // wait for the message
+                // wait 10 secs for the message
+                int waitTimeSecs = 0;
                 while ( _waitingForData ) {
+
                     try {
                         Log.d(TAG,"Data not yet received. Sleeping for 1 second.");
                         Thread.sleep(1000);
@@ -90,8 +94,10 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
                         e.printStackTrace();
                     }
 
-                    // after 10 seconds or so, may want to send another request or do something else
-
+                    if ( ( waitTimeSecs++ ) > WAIT_TIMEOUT_SECS ) {
+                        Log.d(TAG,"Wait timeout exceeded, exiting");
+                        break;
+                    }
                 }
 
                 // data has been received, and we are done
@@ -199,9 +205,9 @@ public class PetCareJobService extends JobService implements MessageClient.OnMes
         cur = statsdb.rawQuery(SQL_READ_QUERY, new String[]{String.valueOf(date)});
         cur.moveToFirst();
 
-        int active_value = data[2];
-        int inactive_value = data[1];
-        int sleeping_value = data[0];
+        int active_value = data[ Constants.ACTIVITY_CLASS_ACTIVE];
+        int inactive_value = data[Constants.ACTIVITY_CLASS_INACTIVE];
+        int sleeping_value = data[Constants.ACTIVITY_CLASS_SLEEPING];
         double dist = 0.0;
 
         int past_active_time=0;

@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
 
@@ -25,6 +26,17 @@ public class ActiveMonitoringActivity extends AppCompatActivity implements Messa
     private Context _cx;
     TextView result_txt;
 
+    static final long UPDATE_DELAY_MS = 1000;
+
+    Handler _handler = new Handler();
+    Runnable _updateState = new Runnable() {
+        @Override
+        public void run() {
+            new NodeMessageBroadcasterTask( _cx, Constants.REQUEST_ACTIVITY_STATE_PATH, null ).execute();
+            _handler.postDelayed(_updateState, UPDATE_DELAY_MS );
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,10 +44,29 @@ public class ActiveMonitoringActivity extends AppCompatActivity implements Messa
 
         this._cx = this.getApplicationContext();
 
+        Log.d(TAG,"onCreate");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        Log.d(TAG,"onPause");
+
+        _handler.removeCallbacks(_updateState);
+        Wearable.getMessageClient(this.getApplicationContext() ).removeListener(this);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG,"onResume");
+
         //init message listener
         Wearable.getMessageClient( this._cx ).addListener(this);
 
-        new NodeMessageBroadcasterTask( _cx, Constants.REQUEST_ACTIVITY_STATE_PATH, null ).execute();
+        _handler.post(_updateState);
     }
 
     @Override
@@ -50,7 +81,7 @@ public class ActiveMonitoringActivity extends AppCompatActivity implements Messa
             String prediction = "Error";
 
             if ( messageEvent.getData() != null && messageEvent.getData().length > 0 ) {
-                Log.d( TAG, "Received elements, n=" + String.valueOf(messageEvent.getData().length) );
+                Log.d( TAG, "Received element; v=" + String.valueOf(messageEvent.getData()[0]) );
 
                 byte currentClass = messageEvent.getData()[0];
 
@@ -70,10 +101,5 @@ public class ActiveMonitoringActivity extends AppCompatActivity implements Messa
             result_txt = findViewById(R.id.result);
             result_txt.setText("Current Class is "+prediction);
         }
-    }
-
-    private void stopListeningForMessages() {
-        Log.d(TAG,"Unregistering message listener");
-        Wearable.getMessageClient(this.getApplicationContext() ).removeListener(this);
     }
 }

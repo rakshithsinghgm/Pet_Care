@@ -13,7 +13,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class PetCareSensorListener
-        implements SensorEventListener {
+        implements SensorEventListener
+        , AutoCloseable {
 
     SensorManager _sm;
     Sensor _sensor;
@@ -30,16 +31,15 @@ public class PetCareSensorListener
     long _lastSensorCollectionSecs = 0;
     static final int COLLECTION_INTERVAL_SECS = 1;//#seconds
 
-    boolean _isEnabled = false;
-    Context _cx;
+    //boolean _isEnabled = false;
+    // Context _cx;
 
     public PetCareSensorListener( Context cx, int sensorType ) {
-        this._cx = cx;
 
-        if ( this._sm == null ) {
-            this._sm = (SensorManager) this._cx.getSystemService(Context.SENSOR_SERVICE);
-            this._sensor = this._sm.getDefaultSensor(sensorType);
-        }
+        this._sm = (SensorManager) cx.getSystemService(Context.SENSOR_SERVICE);
+        this._sensor = this._sm.getDefaultSensor(sensorType);
+        this._sm.registerListener( this, this._sensor, SensorManager.SENSOR_DELAY_NORMAL );
+        //this._isEnabled=true;
 
     }
 
@@ -50,19 +50,6 @@ public class PetCareSensorListener
     public void clearData() {
         times.clear();
         magnitudes.clear();
-    }
-
-    public boolean isEnabled() { return _isEnabled;}
-
-    public void enable() {
-        this._sm.registerListener( this, this._sensor, SensorManager.SENSOR_DELAY_NORMAL );
-        this._isEnabled=true;
-    }
-
-    public void disable() {
-        if ( this._sm != null )
-            this._sm.unregisterListener( this, this._sensor );
-        this._isEnabled=false;
     }
 
     @Override
@@ -81,5 +68,12 @@ public class PetCareSensorListener
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int i) {}
+
+    @Override
+    public void close() throws Exception {
+        if ( this._sm != null )
+            this._sm.unregisterListener( this, this._sensor );
+        //this._isEnabled=false;
+    }
 }
 
